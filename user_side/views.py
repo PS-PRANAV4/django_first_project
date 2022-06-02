@@ -169,14 +169,14 @@ def profile(request):
         return redirect(signin)
 
 
-def cart(request):
-    if request.user.is_authenticated:
+# def cart(request):
+#     if request.user.is_authenticated:
         
-        return render(request,'cart.html')
+#         return render(request,'cart.html')
         
-    else:
-        messages.error(request,'please login first ')
-        return redirect(signin)
+#     else:
+#         messages.error(request,'please login first ')
+#         return redirect(signin)
     
 
 
@@ -209,4 +209,8 @@ def product_details(request,id):
 
 
 
+def check_out(request):
+    return render(request,'checkout.html')
 
+def cart(request):
+    return render(request,'shopping-cart.html')

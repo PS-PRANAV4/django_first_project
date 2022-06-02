@@ -12,6 +12,7 @@ urlpatterns = [
     path('cart',views.cart ),
     path('product/<int:id>',views.product_details ),
     # path('verify/', views.verify_view),
+    path('check',views.check_out ),
     
     
 ]
