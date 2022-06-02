@@ -1,0 +1,117 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>SIGNUP</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<!-- MATERIAL DESIGN ICONIC FONT -->
+		<link rel="stylesheet" href="{% static 'signup/colorlib-regform-24/fonts/material-design-iconic-font/css/material-design-iconic-font.min.css' %}">
+		
+		<!-- STYLE CSS -->
+		<link rel="stylesheet" href="{% static 'signup/colorlib-regform-24/css/style.css' %}">
+	</head>
+
+	<body>
+
+		<div class="wrapper">
+			<div class="image-holder">
+				<img src="{% static 'signup/colorlib-regform-24/images/registration-form-8.jpg' %}" alt="">
+			</div>
+			<div class="form-inner">
+				<form action="signup" method="POST">
+					{% csrf_token %}
+					<div class="form-header">
+						<h3>Sign up</h3>
+						<img src="{% static 'signup/colorlib-regform-24/images/sign-up.png' %}" alt="" class="sign-up-icon">
+					</div>
+					<div class="form-group" >
+						<label for="">first NAME</label>
+						<input type="" name="first_name" class="form-control" >
+						{% if value == 1  %}
+						{% for message in messages %}
+						<div class="alert alert-light" style="text-transform: uppercase;">{{message}}</div>
+						{% endfor %}
+						{% endif %}
+					</div>
+					<div class="form-group" >
+						<label for="">last name</label>
+						<input type="" name="last_name" class="form-control" >
+						{% if value == 6  %}
+						{% for message in messages %}
+						<div class="alert alert-light" style="text-transform: uppercase;">{{message}}</div>
+						{% endfor %}
+						{% endif %}
+					</div>
+					<div class="form-group">
+						<label for="">Username:</label>
+						<input type="text" name="username" class="form-control" >
+						{% if value == 2  %}
+						{% for message in messages %}
+						<div class="alert alert-light" style="text-transform: uppercase;">{{message}}</div>
+						{% endfor %}
+						{% endif %}
+					</div>
+					<div class="form-group">
+						<label for="">E-mail:</label>
+						<input type="text" name="email" class="form-control" >
+						{% if value == 3  %}
+						{% for message in messages %}
+						<div class="alert alert-light" style="text-transform: uppercase;">{{message}}</div>
+						{% endfor %}
+						{% endif %}
+					</div>
+					<div class="form-group">
+						<label for="">PHONE NUMBER</label>
+						<input type="text" name="number" class="form-control">
+						{% if value == 5  %}
+						{% for message in messages %}
+						<div class="alert alert-light" style="text-transform: uppercase;">{{message}}</div>
+						{% endfor %}
+						{% endif %}
+					</div>
+					<div class="form-group" >
+						<label for="">Password:</label>
+						<input type="password" name="pass1" class="form-control"  >
+						{% if value == 4  %}
+						{% for message in messages %}
+						<div class="alert alert-light" style="text-transform: uppercase;">{{message}}</div>
+						{% endfor %}
+						{% endif %}
+					</div>
+					<div class="form-group" >
+						<label for=""> CONFIRM Password:</label>
+						<input type="password" name="pass2" class="form-control"  >
+						{% if value == 4  %}
+						{% for message in messages %}
+						<div class="alert alert-light" style="text-transform: uppercase;">{{message}}</div>
+						{% endfor %}
+						{% endif %}
+					</div>
+					<button type="submit">create my account</button>
+					<div class="socials">
+						<p>Sign up with social platforms</p>
+						<a href="" class="socials-icon">
+							<i class="zmdi zmdi-facebook"></i>
+						</a>
+						<a href="" class="socials-icon">
+							<i class="zmdi zmdi-instagram"></i>
+						</a>
+						<a href="" class="socials-icon">
+							<i class="zmdi zmdi-twitter"></i>
+						</a>
+						<a href="" class="socials-icon">
+							<i class="zmdi zmdi-tumblr"></i>
+						</a>
+					</div>
+				</form>
+			</div>
+			
+		</div>
+		
+		<script src="{% static 'signup/colorlib-regform-24/js/jquery-3.3.1.min.js' %}"></script>
+		<script src="{% static 'signup/colorlib-regform-24/js/jquery.form-validator.min.js' %}"></script>
+		<script src="{% static 'signup/colorlib-regform-24/js/main.js' %}"></script>
+	</body><!-- This templates was made by Colorlib (https://colorlib.com) -->
+</html>
