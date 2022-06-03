@@ -35,58 +35,63 @@
     <section class="checkout spad">
         <div class="container">
             <div class="checkout__form">
-                <form action="#">
+                <form action="/check/{{user.id}}" method="POST">
+                    {% csrf_token %}
                     <div class="row">
                         <div class="col-lg-8 col-md-6">
                             <h6 class="coupon__code"><span class="icon_tag_alt"></span> Have a coupon? <a href="#">Click
                             here</a> to enter your code</h6>
                             <h6 class="checkout__title">Billing Details</h6>
+                            <input name="check" type="checkbox">
                             <div class="row">
+                                
                                 <div class="col-lg-6">
+                                    
                                     <div class="checkout__input">
+                                        
                                         <p>Fist Name<span>*</span></p>
-                                        <input type="text">
+                                        <input type="text" name="first_name">
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="checkout__input">
                                         <p>Last Name<span>*</span></p>
-                                        <input type="text">
+                                        <input type="text" name="last_name">
                                     </div>
                                 </div>
                             </div>
                             <div class="checkout__input">
                                 <p>Country<span>*</span></p>
-                                <input type="text">
+                                <input type="text" name="country">
                             </div>
                             <div class="checkout__input">
                                 <p>Address<span>*</span></p>
-                                <input type="text" placeholder="Street Address" class="checkout__input__add">
-                                <input type="text" placeholder="Apartment, suite, unite ect (optinal)">
+                                <input type="text" name="address1" placeholder="Street Address" class="checkout__input__add">
+                                <input type="text" name="address2" placeholder="Apartment, suite, unite ect (optinal)">
                             </div>
                             <div class="checkout__input">
                                 <p>Town/City<span>*</span></p>
-                                <input type="text">
+                                <input type="text" name="town">
                             </div>
                             <div class="checkout__input">
                                 <p>Country/State<span>*</span></p>
-                                <input type="text">
+                                <input type="text" name="state">
                             </div>
                             <div class="checkout__input">
                                 <p>Postcode / ZIP<span>*</span></p>
-                                <input type="text">
+                                <input type="text" name="pin">
                             </div>
                             <div class="row">
                                 <div class="col-lg-6">
                                     <div class="checkout__input">
                                         <p>Phone<span>*</span></p>
-                                        <input type="text">
+                                        <input type="text" name="phone">
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="checkout__input">
                                         <p>Email<span>*</span></p>
-                                        <input type="text">
+                                        <input type="text" name="email">
                                     </div>
                                 </div>
                             </div>
@@ -95,7 +100,7 @@
                           
                             <div class="checkout__input">
                                 <p>Order notes<span>*</span></p>
-                                <input type="text"
+                                <input type="text" name="note"
                                 placeholder="Notes about your order, e.g. special notes for delivery.">
                             </div>
                         </div>
@@ -113,14 +118,15 @@
                                     <li>Subtotal <span>$750.99</span></li>
                                     <li>Total <span>$750.99</span></li>
                                 </ul>
+                                {% for prof in profile %}
                                 <div class="checkout__input__checkbox">
-                                    <label for="acc-or">
-                                        USE THIS ADDRESS
-                                        <input type="checkbox" id="acc-or">
+                                    <label for="acc-or{{forloop.counter}}">
+                                        {{prof.address}}
+                                        <input type="checkbox" id="acc-or{{forloop.counter}}" value="{{prof.id}}" name="check{{forloop.counter}}">
                                         <span class="checkmark"></span>
                                     </label>
                                 </div>
-                                
+                                {% endfor %}
                                 <button type="submit" class="site-btn">PLACE ORDER</button>
                             </div>
                         </div>

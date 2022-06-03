@@ -9,10 +9,12 @@ urlpatterns = [
     path('signup',views.signup ),
     path('signout',views.signout ),
     path('profile',views.profile ),
-    path('cart',views.cart ),
+    path('addcart/<int:id>/<int:us>',views.addcart ),
     path('product/<int:id>',views.product_details ),
+    path('cart/<int:us>',views.cart),
     # path('verify/', views.verify_view),
-    path('check',views.check_out ),
+    path('check/<int:id>',views.check_out ),
+    path('delete/<int:id>/<int:us>',views.delete_cart ),
     
     
 ]

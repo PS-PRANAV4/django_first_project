@@ -12,6 +12,8 @@ from product.models import Products,Category
 from .utils import send_sms
 from codes.forms import CodeForm
 from django.contrib.auth.forms import AuthenticationForm
+from cart_orders.models import Cart,CartProduct
+from profiles.models import Profile
 
 
 # Create your views here.
@@ -136,10 +138,13 @@ def signup(request):
         
 
         my_user =Accounts.objects.create_user(first_name,last_name,username,email,pass1)
+        
         if number:
             my_user.phone_number = number
         print('user created')
         my_user.save()
+        print(my_user.id)
+        cart = Cart.objects.create(user = my_user)
         print('user created')
         messages.success(request, "u succesfully created a user  you can login now")
          
@@ -209,8 +214,65 @@ def product_details(request,id):
 
 
 
-def check_out(request):
-    return render(request,'checkout.html')
+def check_out(request,id):
+    profile = Profile.objects.filter(accounts = id)
+    if request.method == "POST":
+        check  = request.POST.get('check')
+        print(check)
+        if check:
+            first_name  = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            country = request.POST.get('country')
+            address1 = request.POST.get('address1')
+            address2 = request.POST.get('address2')
+            town = request.POST.get('town')
+            state = request.POST.get('state')
+            phone = request.POST.get('phone')
+            pin = request.POST.get('pin')
+            email = request.POST.get('email')
+            notes = request.POST.get('note')
+            address = address1+address2
+            user = Accounts.objects.get(id=id)
+            new_profile = Profile.objects.create(first_name = first_name, last_name = last_name, country_name = country, address = address, town_city = town, state = state , phone_number = phone, post_code = pin, email = email, notes = notes,accounts = user)
+        print('welcome')
+        check1 =0
+        x= 0
+        x = int(x)
+        
+        
+        def a():
+            nonlocal check1
+            nonlocal x 
+            x = x+1
+            print('never')
+            check1 = request.POST.get('check{0}'.format(x))
+            if check1 != None:
+                
+                return True
+            else:
+                print('check{0}'.format(x))
+                a()
+            
+        a()
+        print('nice')
+        print(check1)
+        
+    return render(request,'checkout.html',{'profile': profile})
 
-def cart(request):
-    return render(request,'shopping-cart.html')
+def cart(request, us):
+    myuser = Accounts.objects.get(id=us)
+    single_cart = Cart.objects.get(user=myuser)
+    full_cart = CartProduct.objects.filter(cart = single_cart)
+    return render(request,'shopping-cart.html',{'products':full_cart})
+
+def addcart(request, id, us):
+    product = Products.objects.get(id=id)
+    myuser = Accounts.objects.get(id=us)
+    print(myuser)
+    single_cart = Cart.objects.get(user=myuser)
+    addcart = CartProduct.objects.create(product = product, cart = single_cart, quantity=1, total_amount= product.price )
+
+    return redirect(cart,us)
+def delete_cart(request,id, us):
+    CartProduct.objects.get(id=id).delete()
+    return redirect(cart,us)

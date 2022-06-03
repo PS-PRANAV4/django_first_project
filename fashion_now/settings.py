@@ -42,7 +42,9 @@ INSTALLED_APPS = [
     'user_side.apps.UserSideConfig',
     'product.apps.ProductConfig',
     'codes',
-    'crispy_forms'
+    'crispy_forms',
+    'cart_orders',
+    'profiles',
 ]
 
 MIDDLEWARE = [
