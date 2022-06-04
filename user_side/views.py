@@ -1,4 +1,5 @@
 
+import email
 from unicodedata import category
 from django.http import HttpResponse
 from django.shortcuts import render,redirect
@@ -8,11 +9,12 @@ from django.contrib.auth.models import User
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required
 from admins.models import Accounts
+from admins.views import product
 from product.models import Products,Category
 from .utils import send_sms
 from codes.forms import CodeForm
 from django.contrib.auth.forms import AuthenticationForm
-from cart_orders.models import Cart,CartProduct
+from cart_orders.models import Cart,CartProduct, Order, ProductOrders
 from profiles.models import Profile
 
 
@@ -216,6 +218,8 @@ def product_details(request,id):
 
 def check_out(request,id):
     profile = Profile.objects.filter(accounts = id)
+    cart = Cart.objects.get(user = id)
+    cartproducts = CartProduct.objects.filter(cart = cart)
     if request.method == "POST":
         check  = request.POST.get('check')
         print(check)
@@ -234,6 +238,7 @@ def check_out(request,id):
             address = address1+address2
             user = Accounts.objects.get(id=id)
             new_profile = Profile.objects.create(first_name = first_name, last_name = last_name, country_name = country, address = address, town_city = town, state = state , phone_number = phone, post_code = pin, email = email, notes = notes,accounts = user)
+            check = new_profile.id
         print('welcome')
         check1 =0
         x= 0
@@ -256,14 +261,18 @@ def check_out(request,id):
         a()
         print('nice')
         print(check1)
+        if check1 != None:
+            return redirect(purchase,check1,id)
+        else:
+            return redirect(purchase, check,id)
         
-    return render(request,'checkout.html',{'profile': profile})
+    return render(request,'checkout.html',{'profile': profile,"cart": cart, "cartproducts": cartproducts })
 
 def cart(request, us):
     myuser = Accounts.objects.get(id=us)
     single_cart = Cart.objects.get(user=myuser)
     full_cart = CartProduct.objects.filter(cart = single_cart)
-    return render(request,'shopping-cart.html',{'products':full_cart})
+    return render(request,'shopping-cart.html',{'products':full_cart,'single':single_cart})
 
 def addcart(request, id, us):
     product = Products.objects.get(id=id)
@@ -271,8 +280,87 @@ def addcart(request, id, us):
     print(myuser)
     single_cart = Cart.objects.get(user=myuser)
     addcart = CartProduct.objects.create(product = product, cart = single_cart, quantity=1, total_amount= product.price )
+    full_cart_product = CartProduct.objects.filter(cart = single_cart)
+    total = 0
+    total = int(total)
+    for products in full_cart_product:
+        total = total+products.total_amount
+    single_cart.grand_total = total
+    single_cart.save()
+    return redirect(cart,us)
 
-    return redirect(cart,us)
 def delete_cart(request,id, us):
+    single_cart = Cart.objects.get(user = us)
+    product = CartProduct.objects.get(id=id)
+    single_cart.grand_total = single_cart.grand_total - product.product.price
+    single_cart.save()
     CartProduct.objects.get(id=id).delete()
+    full_cart_product = CartProduct.objects.filter(cart = single_cart)
+    total = 0
+    total = int(total)
+    for products in full_cart_product:
+        total = total+products.total_amount
+    single_cart.grand_total = total
+    single_cart.save()
+    print()
     return redirect(cart,us)
+
+def checkout(request,check, id):
+    profile = Profile.objects.get(id=check)
+    user_email = profile.accounts
+    user_details = Accounts.objects.get(email=user_email)
+    
+    user_cart = Cart.objects.get(user = user_details)
+    cart_product = CartProduct.objects.filter(cart = user_cart)
+
+    
+    order = Order.objects.create(user = user_details, delivery_address = profile, status = 'PENDING', grand_total = user_cart.grand_total )
+    for cart in cart_product:
+        ProductOrders.objects.create(product = cart.product, quantity = cart.quantity, total_amount = cart.total_amount, main_order = order)
+    print(user_email.first_name)
+    cart_product.delete()
+    return HttpResponse('succesful')
+
+
+
+
+def purchase(request,check,id):
+    cart = Cart.objects.get(user = id)
+    if request.method == "POST":
+        return redirect(checkout,check,id)
+    return render(request,'purchase.html',{'check':check, 'id':id,'cart': cart} )
+
+
+
+def add_quantity(request, us, op, pro):
+    if op == 'plus':
+        carts = Cart.objects.get(user=us)
+        cartproduct = CartProduct.objects.get(product=pro, cart = carts)
+        product = Products.objects.get(id = pro)
+        cartproduct.quantity = cartproduct.quantity+1
+        cartproduct.total_amount = product.price*cartproduct.quantity
+        cartproduct.save()
+        full_cart_product = CartProduct.objects.filter(cart = carts)
+        total = 0
+        total = int(total)
+        for products in full_cart_product:
+            total = total+products.total_amount
+        carts.grand_total = total
+        carts.save()
+        
+    else:
+        carts = Cart.objects.get(user=us)
+        cartproduct = CartProduct.objects.get(product=pro, cart = carts)
+        product = Products.objects.get(id = pro)
+        cartproduct.quantity = cartproduct.quantity-1
+        cartproduct.total_amount = product.price*cartproduct.quantity
+        cartproduct.save()
+        full_cart_product = CartProduct.objects.filter(cart = carts)
+        total = 0
+        total = int(total)
+        for products in full_cart_product:
+            total = total+products.total_amount
+        carts.grand_total = total
+        carts.save()
+
+    return redirect(cart, us)

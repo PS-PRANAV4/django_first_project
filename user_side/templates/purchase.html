@@ -1,0 +1,92 @@
+
+{% extends 'navbar.html' %}
+
+
+{% block content %}
+{% load static %}  
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="container rounded bg-white pt-7">
+    <div class="row d-flex justify-content-center pb-5">
+        <div class="col-sm-5 col-md-5 ml-1">
+            <div class="py-4 d-flex flex-row">
+                <h5><span class="fa fa-check-square-o"></span><b>Pay</b> 
+            </div>
+            
+            
+           
+            
+         
+            <div class="pt-2">
+                <div class="d-flex">
+                    <div><p><b>Patient Balance.</b><span class="green">$13.24</span></p></div>
+                    <div class="ml-auto p-2"></div>
+                </div>
+                <p>
+                   kindly provide correct Amount
+                </p>
+                <form class="pb-3" method="POST" action="/purchase/{{check}}/{{id}}">
+                    {% csrf_token %}
+                    <div class="d-flex flex-row w-100">
+                        <div class="pt-2 pr-2"><input type="radio" name="radio2" id="r2"></div>
+                        <div class="rounded  d-flex w-100 px-2">
+                            <div class="pt-2"><p><i class="fa fa-cc-mastercard pr-2"></i>CASH ON DELIVERY</p></div>
+                            <div class="ml-auto pt-2"></div>
+                        </div>
+                    </div>
+                
+                <div>
+                    <button class="btn btn-primary btn-block" type="submit"> PURCHASE</button>
+                </div>
+            </form>
+            </div>
+        </div>
+        <div class="col-sm-3 col-md-4 offset-md-1 mobile">
+            <div class="py-4 d-flex justify-content-end">
+                <h6><a href="#">Cancel and return to website</a></h6>
+            </div>
+            <div class="bg-light rounded d-flex flex-column">
+                <div class="p-2 ml-3"><h4>Order Details</h4></div>
+                <div class="p-2 d-flex">
+                    <div class="col-8">Contracted Price</div>
+                    <div class="ml-auto">${{cart.grand_total}}</div>
+                </div>
+
+                <div class="border-top px-4 mx-3"></div>
+                <div class="p-2 d-flex pt-3">
+                    <div class="col-8"><b>Total</b></div>
+                    <div class="ml-auto"><b class="green">${{cart.grand_total}}</b></div>
+                </div>
+            </div>
+        </div>        
+    </div>
+</div>
+
+<style>
+    body{
+        background-color: #eeeeee;
+    }
+    
+    .green{
+        color: rgb(15, 207, 143);
+        font-weight: 680;
+    }
+    
+    @media(max-width:567px){
+        .mobile{
+            padding-top: 40px;
+        }
+    }
+
+</style>
+{% endblock %}

@@ -15,6 +15,9 @@ urlpatterns = [
     # path('verify/', views.verify_view),
     path('check/<int:id>',views.check_out ),
     path('delete/<int:id>/<int:us>',views.delete_cart ),
+    path('checkout/<int:check>/<int:id>',views.checkout ),
+    path('purchase/<int:check>/<int:id>',views.purchase),
+    path('quantity/<int:us>/<str:op>/<int:pro>',views.add_quantity),
     
     
 ]
