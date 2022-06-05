@@ -1,0 +1,60 @@
+{% extends 'user_profile/main.html' %}
+
+{% block content %}
+
+<div class="row tm-content-row">
+    <div class="col-12 tm-block-col">
+      <div class="tm-bg-primary-dark tm-block tm-block-h-auto">
+        <h2 class="tm-block-title">List of Accounts</h2>
+        <p class="text-white">Accounts</p>
+
+        <div class="tm-product-table-container">     
+          
+          <table class="table table-hover tm-table-small tm-product-table ">
+
+            <form action="accounts" style="position: fixed;"  method="POST">  <div class="input-group">
+            {% csrf_token %}
+            <div class="form-outline" >
+              <input type="search" name="search" id="form1" class="form-control"  />
+              
+            </div>
+            <div >
+            <button type="submit" class="btn btn-primary" >
+              <i class="fas fa-search"></i>
+            </button>
+        
+          </div>
+          </div>
+        </form>
+
+<thead class="" >
+<tr>
+<th scope="col">id</th>
+<th scope="col">DELIVERY ADDRESS</th>
+<th scope="col">GRAND TOTAL</th>
+<th scope="col">STATUS</th>
+<th>CANCEL ORDER</th>
+<!-- <th scope="col">Delete </th> -->
+</tr>
+</thead>
+<tbody>
+    user = models.ForeignKey(Accounts, on_delete=models.CASCADE, blank=True)
+    delivery_address = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    status = models.CharField(choices= delivery_choices, default="PENDING", max_length=20)
+    grand_total = models.IntegerField(blank =True)
+{% for order in orders %}
+<tr>
+<th scope="row">{{forloop.counter}}</th>
+<td>{{order.delivery_address.address}}</td>
+<td>{{order.grand_total}}</td>
+<td>{{order.status}}</td>
+<td><a href="/user_profile/cancel/{{order.id}}"> CANCEL ORDER</a></td>
+</tr>
+{% endfor %}
+</tbody>
+
+</table>
+</div>
+
+
+{% endblock %}

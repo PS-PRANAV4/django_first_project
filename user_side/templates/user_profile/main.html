@@ -1,0 +1,78 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+  	<title>Sidebar 03</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
+		
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+		<link rel="stylesheet" href="{% static 'user_profile/css/style.css'%}">
+  </head>
+  <body>
+		
+		<div class="wrapper d-flex align-items-stretch" style="z-index: 5;">
+			<nav id="sidebar" style="z-index: 5;" class="active">
+				<div class="custom-menu">
+					<button type="button" id="sidebarCollapse" class="btn btn-primary">
+	          <i class="fa fa-bars"></i>
+	          <span class="sr-only">Toggle Menu</span>
+	        </button>
+        </div>
+				<div class="p-4">
+		  		<h1><a href="index.html" class="logo">{{user.username}}</a></h1>
+	        <ul class="list-unstyled components mb-5">
+	          <li class="active">
+	            <a href="/user_profile/{{user.id}}"><span class="fa fa-home mr-3"></span> USER DETAILS</a>
+	          </li>
+	          <li>
+	              <a href="/user_profile/account/{{user.id}}"><span class="fa fa-user mr-3"></span> ACCOUNT SETTINGS</a>
+	          </li>
+	          <li>
+              <a href="/user_profile/address/{{user.id}}"><span class="fa fa-briefcase mr-3"></span> ADDRESS</a>
+	          </li>
+	          
+	          <li>
+              <a href="/user_profile/orders/{{user.id}}"><span class="fa fa-paper-plane mr-3"></span> ORDERS</a>
+	          </li>
+	        
+			<li>
+				<a href="/signout"><span class="fa fa-paper-plane mr-3"></span> LOGOUT</a>
+				</li>
+			  
+			  <li>
+				<a href="/"><span class="fa fa-paper-plane mr-3"></span> BACK TO HOME</a>
+				</li>
+			  </ul>
+	        <div class="mb-5">
+						<h3 class="h6 mb-3">Subscribe for newsletter</h3>
+						<form action="#" class="subscribe-form">
+	            <div class="form-group d-flex">
+	            	<div class="icon"><span class="icon-paper-plane"></span></div>
+	              <input type="text" class="form-control" placeholder="Enter Email Address">
+	            </div>
+	          </form>
+					</div>
+
+	        
+
+	      </div>
+    	</nav>
+
+        <!-- Page Content  -->
+      <div id="content" class="p-4 p-md-5 pt-5">
+        
+       {% block content %}
+
+	   {% endblock %}
+      </div>
+		</div>
+
+    <script src="{% static 'user_profile/js/jquery.min.js' %}"></script>
+    <script src="{% static 'user_profile/js/popper.js' %}"></script>
+    <script src="{% static 'user_profile/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'user_profile/js/main.js' %}"></script>
+  </body>
+</html>

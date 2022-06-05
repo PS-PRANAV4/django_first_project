@@ -11,6 +11,7 @@ from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required
 from .models import Accounts,Manager
 from product.models import Category,Products
+from cart_orders.models import Cart,CartProduct,Order,ProductOrders
 import os
 # Create your views here.
  
@@ -54,7 +55,8 @@ def signin(request):
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
 @login_required(login_url=signin)
 def main(request):
-    return render(request, 'admin_T/first.html')   
+    orders = Order.objects.all().order_by('id')
+    return render(request, 'admin_T/first.html',{'orders':orders} )   
 
 
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
@@ -212,3 +214,17 @@ def delete_category(request, id):
         messages.error( request, "can't delete the category")
     return redirect(product)
 
+
+def change(request,id,status = None):
+    order = Order.objects.get(id=id)
+
+
+    if status == "cancel":
+        order.status = "CANCEL"
+    elif order.status == "PENDING":
+        order.status = "DELIVERED"
+    else:
+        order.status = "PENDING"
+    order.save()
+    return redirect(main)
+    

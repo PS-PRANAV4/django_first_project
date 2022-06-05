@@ -364,3 +364,6 @@ def add_quantity(request, us, op, pro):
         carts.save()
 
     return redirect(cart, us)
+
+
+

@@ -5,7 +5,7 @@ from admins.models import Accounts
 from profiles.models import Profile
 # Create your models here.
 
-delivery_choices = (("PENDING", "PENDING"), ("DELIVERED","DELIVERED"))
+delivery_choices = (("PENDING", "PENDING"), ("DELIVERED","DELIVERED"),("CANCELED","CANCELED"))
 
 class Cart(models.Model):
     user = models.OneToOneField(Accounts, on_delete=models.CASCADE, blank=True)
