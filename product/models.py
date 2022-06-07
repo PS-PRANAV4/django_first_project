@@ -7,13 +7,19 @@ from unicodedata import name
 from django.db import models
 
 # Create your models here.
-
-
+maincategory = (('MEN','MEN'),('WOMEN','WOMEN'),('KIDS','KIDS'))
+class MainCategory(models.Model):
+    name = models.CharField(choices=maincategory,default='MEN',max_length=20)
+    main_category_image = models.ImageField(upload_to = 'photos/maincategory',blank = True)
+    
+    def __str__(self):
+        return self.name
+    
 class Category(models.Model):
     namer = models.CharField(max_length=50)
-    image = models.ImageField()
+    image = models.ImageField(upload_to = 'photos/category',blank = True)
     description = models.TextField()
-
+    main_cate = models.ForeignKey(MainCategory,blank=True,null=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.namer

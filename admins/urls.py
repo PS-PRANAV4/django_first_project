@@ -19,7 +19,7 @@ urlpatterns = [
     path('delete_category/<int:id>', views.delete_category),
     path('change_order_status/<int:id>',views.change),
     path('change_order_status/<int:id>/<str:status>',views.change),
-
+    path('accounts',views.account),
     
     
 ]

@@ -13,6 +13,7 @@ from .models import Accounts,Manager
 from product.models import Category,Products
 from cart_orders.models import Cart,CartProduct,Order,ProductOrders
 import os
+from django.core.paginator import Paginator
 # Create your views here.
  
 
@@ -62,7 +63,6 @@ def main(request):
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
 @login_required(login_url=signin)
 def account(request):
-    print('hello')
     if request.method == 'POST':
         search = request.POST.get('search')
         context = Accounts.objects.filter(username__icontains=search, is_admin=False)
@@ -74,13 +74,21 @@ def account(request):
     context = Accounts.objects.filter(username__icontains=search, is_admin=False)
     if search :
         request.session['name'] = False
-        return render(request,'admin_T/accounts.html', {'full_user':context})
+        look = 0
+        return render(request,'admin_T/accounts.html', {'full_user':context,'search':look})
         
     else:
+
         full_users = Accounts.objects.filter(is_admin=False).order_by('id')
+        page_number = request.GET.get('page')
+        p = Paginator(full_users,2)
         
-        
-        return render(request,'admin_T/accounts.html', {'full_user':full_users})
+        try:
+            users = p.page(page_number)
+        except:
+            users = p.page(1)
+        look = 1
+        return render(request,'admin_T/accounts.html', {'full_user':users,'search':look})
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
 @login_required(login_url=signin)
 def add_product(request):
@@ -157,9 +165,17 @@ def edit_product(request,id):
 def product(request):
     pro = Products.objects.all()
     cats = Category.objects.all()
-    
-
-    return render(request, 'admin_T/products.html',{'pro':pro, 'cats':cats})
+    product = Paginator(pro,2) 
+    product_number = request.GET.get('pages')
+       
+    try:
+        pro = product.page(product_number)
+           
+    except:
+        pro = product.page(1)
+        
+    com = 1
+    return render(request, 'admin_T/products.html',{'pro':pro, 'cats':cats, "search":com})
 
 # @login_required(login_url=signin)
 # def add_users(request):

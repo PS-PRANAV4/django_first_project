@@ -10,8 +10,8 @@ delivery_choices = (("PENDING", "PENDING"), ("DELIVERED","DELIVERED"),("CANCELED
 class Cart(models.Model):
     user = models.OneToOneField(Accounts, on_delete=models.CASCADE, blank=True)
     grand_total = models.IntegerField(blank=True, null=True)
-    def __int__(self):
-        return self.user
+    def __str__(self):
+        return self.user.username
     
 
 class CartProduct(models.Model):
@@ -20,6 +20,8 @@ class CartProduct(models.Model):
     total_amount = models.IntegerField(blank=True)
     cart = models.ForeignKey(Cart, on_delete= models.CASCADE, blank=True)
 
+    def __str__(self):
+        return self.cart.user
     
     
 
@@ -31,8 +33,14 @@ class Order(models.Model):
     status = models.CharField(choices= delivery_choices, default="PENDING", max_length=20)
     grand_total = models.IntegerField(blank =True)
 
+    def __str__(self):
+        return self.user.username
+
 class ProductOrders(models.Model):
     product = models.ForeignKey(Products, on_delete=models.CASCADE, blank=True)
     quantity = models.IntegerField(blank=True)
     total_amount = models.IntegerField(blank=True)
     main_order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return self.product.name,'product sold to->', self.main_order.user.username

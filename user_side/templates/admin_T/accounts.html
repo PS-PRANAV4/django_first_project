@@ -46,7 +46,7 @@
   <tbody>
     {% for usern in full_user %}
     <tr>
-      <th scope="row">{{usern.id}}</th>
+      <th scope="row">{{forloop.counter}}</th>
       <td>{{usern.first_name}}</td>
       <td>{{usern.last_name}}</td>
       <td>{{usern.username}}</td>
@@ -63,9 +63,32 @@
       <!-- <td><a href="delete_user/{{usern.id}}"><button class="btn btn-danger">DELETE</button></a></td> -->
     </tr>
   {% endfor %}
+  
   </tbody>
   
 </table>
+{% if search %}
+<nav aria-label="Page navigation example">
+  <ul class="pagination">
+    {% if full_user.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="/admins/accounts?page={{full_user.previous_page_number}}" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+    {% endif %}
+    
+    <li class="page-item"><a class="page-link" href="">{{full_user.number}}</a></li>
+ {% if full_user.has_next %}   
+    <li class="page-item">
+      <a class="page-link" href="/admins/accounts?page={{full_user.next_page_number}}" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
 </div>
 <!-- <a href="add_users"><button class="btn btn-primary  text-uppercase" >ADD USER</button></a> -->
 {% endblock %}

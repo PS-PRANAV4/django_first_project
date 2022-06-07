@@ -11,7 +11,7 @@
               <table class="table table-hover tm-table-small tm-product-table">
                 <thead>
                   <tr>
-                    <th scope="col">&nbsp;</th>
+                    <th scope="col">sl/no</th>
                     <th scope="col">PRODUCT NAME</th>
                     <th scope="col">PRODUCT PRICE</th>
                     <th scope="col">PRODUCT STOCK</th>
@@ -25,7 +25,7 @@
                 <tbody>
                   {% for product in pro %}
                   <tr>
-                    <th scope="row"><input type="checkbox" /></th>
+                    <th scope="row">{{forloop.counter}}</th>
                     <td class="tm-product-name">{{product.name}}</td>
                     <td> {{product.price}} </td>
                     <td> {{product.stock}} </td>
@@ -46,6 +46,28 @@
                   {% endfor %}
                 </tbody>
               </table>
+              {% if search %}
+<nav aria-label="Page navigation example">
+  <ul class="pagination">
+    {% if pro.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="/admins/product?pages={{pro.previous_page_number}}" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+    {% endif %}
+    
+    <li class="page-item"><a class="page-link" href="">{{pro.number}}</a></li>
+ {% if pro.has_next %}   
+    <li class="page-item">
+      <a class="page-link" href="/admins/product?pages={{pro.next_page_number}}" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
             </div>
             <!-- table container -->
             <a
@@ -75,6 +97,7 @@
                  {% endfor %}
                 </tbody>
               </table>
+             
             </div>
             <!-- table container -->
             <a href="add_category"><button class="btn btn-primary btn-block text-uppercase mb-3">
