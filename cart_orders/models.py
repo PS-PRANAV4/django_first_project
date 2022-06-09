@@ -20,8 +20,7 @@ class CartProduct(models.Model):
     quantity = models.IntegerField(blank=True)
     total_amount = models.IntegerField(blank=True)
     cart = models.ForeignKey(Cart, on_delete= models.CASCADE, blank=True)
-    order_date = models.DateTimeField(auto_now_add=True,blank=True, null=True)
-    delivery_date = models.DateTimeField(blank=True, null=True)
+    
 
     def __str__(self):
         return self.cart.user.username
@@ -35,6 +34,8 @@ class Order(models.Model):
     delivery_address = models.ForeignKey(Profile, on_delete=models.CASCADE)
     status = models.CharField(choices= delivery_choices, default="PENDING", max_length=20)
     grand_total = models.IntegerField(blank =True)
+    order_date = models.DateTimeField(auto_now_add=True,blank=True, null=True)
+    delivery_date = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return self.user.username

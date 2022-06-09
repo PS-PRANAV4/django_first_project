@@ -43,7 +43,7 @@
                                 <tr>
                                     <td class="product__cart__item">
                                         <div class="product__cart__item__pic">
-                                            <img src="{{product.product.image_product.url}}" height="80ch" alt="">
+                                            <img src="{{product.product.image_product.url}}" height="2" width="55" alt="">
                                         </div>
                                         <div class="product__cart__item__text">
                                             <h6> {{product.product.name}} </h6>
@@ -53,15 +53,21 @@
                                     <td class="quantity__item">
                                         <div class="quantity">
                                             {% if product.quantity > 1 %}
-                                            <a href="/quantity/{{user.id}}/minus/{{product.product.id}}"><span style="font-weight: 900; font-size: 3ch; color: brown;" >- </a></span>
+                                            <span id="bu"  type="submit"  style="font-weight: 900; font-size: 3ch; color: brown;" >- </a>
+                                                <py-script src="{% static 'pyscript/syn.py' %}" >
+                                                
+                                                </py-script>
                                             {% endif %}
-                                                <input type="text" value="{{product.quantity}}">
-                                               
+                                            <div id="me" >{{product.quantity}}</div>
+                                                
+                                                <input type="text" id="lome" style="display: none;"  value="{{product.product.id}}">
+                                                
+                                            
                                         </div>
                                         
                                     </td>
                                     
-                                    <td class="cart__price"> <a href="/quantity/{{user.id}}/plus/{{product.product.id}}"> <span style="font-weight: 800; color: brown;">+</a></span> 
+                                    <td class="cart__price">  <span style="font-weight: 800; color: brown;" id="bus" type="submit">+</span> 
                                         $ {{product.total_amount}}</td>
                                     <td class="cart__close"><a href="/delete/{{product.id}}/{{user.id}}"><i class="fa fa-close"></i></a></td>
                                 </tr>
@@ -95,7 +101,8 @@
         </div>
     </section>
     <!-- Shopping Cart Section End -->
-
+    {% csrf_token %}
+   
     <!-- Footer Section Begin -->
     <footer class="footer">
         <div class="container">
@@ -173,7 +180,10 @@
         </div>
     </div>
     <!-- Search End -->
+    <py-script src="{% static 'pyscript/asyc.py' %}" >
 
+    </py-script> 
+    
     <!-- {% static 'product/js Plugins -->
     <script src="{% static 'product/js/jquery-3.3.1.min.js' %}"></script>
     <script src="{% static 'product/js/bootstrap.min.js' %}"></script>
@@ -185,6 +195,7 @@
     <script src="{% static 'product/js/mixitup.min.js' %}"></script>
     <script src="{% static 'product/js/owl.carousel.min.js' %}"></script>
     <script src="{% static 'product/js/main.js' %}"></script>
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
 </body>
 
 </html>

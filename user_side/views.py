@@ -1,5 +1,6 @@
 
 import email
+import json
 from unicodedata import category
 from django.http import HttpResponse
 from django.shortcuts import render,redirect
@@ -16,7 +17,7 @@ from codes.forms import CodeForm
 from django.contrib.auth.forms import AuthenticationForm
 from cart_orders.models import Cart,CartProduct, Order, ProductOrders
 from profiles.models import Profile
-
+from django.http import JsonResponse
 
 # Create your views here.
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
@@ -333,6 +334,8 @@ def purchase(request,check,id):
 
 
 def add_quantity(request, us, op, pro):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' :
+        pass    
     if op == 'plus':
         carts = Cart.objects.get(user=us)
         cartproduct = CartProduct.objects.get(product=pro, cart = carts)
@@ -367,3 +370,52 @@ def add_quantity(request, us, op, pro):
 
 
 
+# def hello(request):
+#     if request.method == "POST":
+#         number = json.loads(request.body)['number']
+#         return JsonResponse({'data': f"4"})
+#     number = 5
+#     return JsonResponse({'number':number})
+#     # return redirect(first)
+
+def hello(request):
+    if request.method == "POST":
+        us = request.user
+        print(us)
+        pro = json.loads(request.body)['number']
+        print(pro, '*************************')
+        carts = Cart.objects.get(user=us)
+        cartproduct = CartProduct.objects.get(product=pro, cart = carts)
+        product = Products.objects.get(id = pro)
+        cartproduct.quantity = cartproduct.quantity+1
+        cartproduct.total_amount = product.price*cartproduct.quantity
+        cartproduct.save()
+        full_cart_product = CartProduct.objects.filter(cart = carts)
+        total = 0
+        total = int(total)
+        for products in full_cart_product:
+            total = total+products.total_amount
+        carts.grand_total = total
+        carts.save()
+        cars = cartproduct.quantity
+        return JsonResponse({'data': f"{cars}"})
+
+def hel(request):
+    if request.method == "POST":
+        us = request.user
+        pro = json.loads(request.body)['number']
+        carts = Cart.objects.get(user=us)
+        cartproduct = CartProduct.objects.get(product=pro, cart = carts)
+        product = Products.objects.get(id = pro)
+        cartproduct.quantity = cartproduct.quantity-1
+        cartproduct.total_amount = product.price*cartproduct.quantity
+        cartproduct.save()
+        full_cart_product = CartProduct.objects.filter(cart = carts)
+        total = 0
+        total = int(total)
+        for products in full_cart_product:
+            total = total+products.total_amount
+        carts.grand_total = total
+        carts.save()
+        cars = cartproduct.quantity
+        return JsonResponse({'data': f"{cars}"})
