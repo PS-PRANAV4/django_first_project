@@ -33,6 +33,8 @@ class Products(models.Model):
     stock = models.IntegerField()
     category_id = models.ForeignKey(Category, on_delete=models.PROTECT)
     image_product = models.ImageField(upload_to = 'photos/products', blank = True)
+    image_product4 = models.ImageField(upload_to = 'photos/products2', blank = True)
+    image_product5 = models.ImageField(upload_to = 'photos/products3', blank = True)
 
     def __str__(self):
         return self.name

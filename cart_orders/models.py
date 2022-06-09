@@ -1,4 +1,5 @@
-from tkinter import CASCADE
+from datetime import datetime
+from email.policy import default
 from django.db import models
 from product.models import Products
 from admins.models import Accounts
@@ -19,9 +20,11 @@ class CartProduct(models.Model):
     quantity = models.IntegerField(blank=True)
     total_amount = models.IntegerField(blank=True)
     cart = models.ForeignKey(Cart, on_delete= models.CASCADE, blank=True)
+    order_date = models.DateTimeField(auto_now_add=True,blank=True, null=True)
+    delivery_date = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return self.cart.user
+        return self.cart.user.username
     
     
 
@@ -43,4 +46,5 @@ class ProductOrders(models.Model):
     main_order = models.ForeignKey(Order, on_delete=models.CASCADE)
     
     def __str__(self):
-        return self.product.name,'product sold to->', self.main_order.user.username
+        a = (self.product.name,'  product sold to->', self.main_order.user.username)
+        return ' '.join(a)

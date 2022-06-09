@@ -17,5 +17,7 @@ class Profile(models.Model):
     notes = models.TextField()
     accounts = models.ForeignKey(Accounts,on_delete=models.CASCADE)
 
+
     def __str__(self):
-        return self.first_name, self.last_name, self.country_name, self.address, self.town_city, self.state, self.phone_number, self.email,'address of ->', self.accounts.first_name
+        a= (self.first_name, self.last_name, self.country_name, self.address, self.town_city, self.state, self.phone_number, self.email,'address of ->', self.accounts.first_name)
+        return ' '.join(a)

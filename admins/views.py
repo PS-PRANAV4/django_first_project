@@ -163,7 +163,7 @@ def edit_product(request,id):
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
 @login_required(login_url=signin)
 def product(request):
-    pro = Products.objects.all()
+    pro = Products.objects.all().order_by('id')
     cats = Category.objects.all()
     product = Paginator(pro,2) 
     product_number = request.GET.get('pages')
