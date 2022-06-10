@@ -4,6 +4,7 @@ from operator import mod
 from pickle import TRUE
 from tkinter import CASCADE
 from unicodedata import name
+from unittest.util import _MAX_LENGTH
 from django.db import models
 
 # Create your models here.
@@ -29,12 +30,12 @@ class Products(models.Model):
     name = models.CharField(max_length=100)
     details = models.TextField()
     price = models.IntegerField()
-    offer = models.IntegerField()
+    offer = models.IntegerField(default=0)
     stock = models.IntegerField()
     category_id = models.ForeignKey(Category, on_delete=models.PROTECT)
-    image_product = models.ImageField(upload_to = 'photos/products', blank = True)
-    image_product4 = models.ImageField(upload_to = 'photos/products2', blank = True)
-    image_product5 = models.ImageField(upload_to = 'photos/products3', blank = True)
+    image_product = models.ImageField(upload_to = 'photos/products', blank = True, max_length=300)
+    image_product4 = models.ImageField(upload_to = 'photos/products2', blank = True, max_length=300)
+    image_product5 = models.ImageField(upload_to = 'photos/products3', blank = True, max_length=300)
 
     def __str__(self):
         return self.name

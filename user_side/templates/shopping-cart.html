@@ -1,6 +1,6 @@
 {% extends 'navbar.html' %}
 
-
+{% load mathfilters %}
 {% block content %}
 {% load static %}
 
@@ -47,7 +47,7 @@
                                         </div>
                                         <div class="product__cart__item__text">
                                             <h6> {{product.product.name}} </h6>
-                                            <h5>${{product.product.price}}</h5>
+                                            <h5>₹{{product.product.price}}</h5>
                                         </div>
                                     </td>
                                     <td class="quantity__item">
@@ -68,7 +68,7 @@
                                     </td>
                                     
                                     <td class="cart__price">  <span style="font-weight: 800; color: brown;" id="bus" type="submit">+</span> 
-                                        $ {{product.total_amount}}</td>
+                                        ₹{{product.total_amount}}</td>
                                     <td class="cart__close"><a href="/delete/{{product.id}}/{{user.id}}"><i class="fa fa-close"></i></a></td>
                                 </tr>
                                {% endfor %}
@@ -91,8 +91,11 @@
                     <div class="cart__total">
                         <h6>Cart total</h6>
                         <ul>
+                            <li>Total <span>₹{{single.grand_total}}</span></li>
+                             <li>offers <span>₹{{offer}}</span></li>
+                             <hr style="color: blue;" >
+                             <li>GRAND TOTAL <span>₹{{single.grand_total|sub:offer}}</span></li>
                             
-                            <li>Total <span>$ {{single.grand_total}}</span></li>
                         </ul>
                         <a href="/check/{{user.id}}" class="primary-btn">Proceed to checkout</a>
                     </div>

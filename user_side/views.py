@@ -224,7 +224,7 @@ def check_out(request,id):
     if request.method == "POST":
         check  = request.POST.get('check')
         print(check)
-        if check:
+        if check == 0:
             first_name  = request.POST.get('first_name')
             last_name = request.POST.get('last_name')
             country = request.POST.get('country')
@@ -239,41 +239,29 @@ def check_out(request,id):
             address = address1+address2
             user = Accounts.objects.get(id=id)
             new_profile = Profile.objects.create(first_name = first_name, last_name = last_name, country_name = country, address = address, town_city = town, state = state , phone_number = phone, post_code = pin, email = email, notes = notes,accounts = user)
-            check = new_profile.id
-        print('welcome')
-        check1 =0
-        x= 0
-        x = int(x)
+            check1 = new_profile.id
+        else:
+            check2 = Profile.objects.get(id = check)
+            check1 = check2.id
         
-        
-        def a():
-            nonlocal check1
-            nonlocal x 
-            x = x+1
-            print('never')
-            check1 = request.POST.get('check{0}'.format(x))
-            if check1 != None:
-                
-                return True
-            else:
-                print('check{0}'.format(x))
-                a()
-            
-        a()
-        print('nice')
-        print(check1)
         if check1 != None:
             return redirect(purchase,check1,id)
-        else:
-            return redirect(purchase, check,id)
         
-    return render(request,'checkout.html',{'profile': profile,"cart": cart, "cartproducts": cartproducts })
+    total_offer = 0
+    for pros in cartproducts:
+        total_offer = total_offer + pros.product.offer
+       
+    return render(request,'checkout.html',{'profile': profile,"cart": cart, "cartproducts": cartproducts, 'offer':total_offer })
 
 def cart(request, us):
     myuser = Accounts.objects.get(id=us)
     single_cart = Cart.objects.get(user=myuser)
     full_cart = CartProduct.objects.filter(cart = single_cart)
-    return render(request,'shopping-cart.html',{'products':full_cart,'single':single_cart})
+    total_offer = 0
+    for product in full_cart:
+        total_offer = total_offer+product.product.offer
+    
+    return render(request,'shopping-cart.html',{'products':full_cart,'single':single_cart,'offer':total_offer})
 
 def addcart(request, id, us):
     product = Products.objects.get(id=id)
@@ -314,11 +302,13 @@ def checkout(request,check, id):
     user_cart = Cart.objects.get(user = user_details)
     cart_product = CartProduct.objects.filter(cart = user_cart)
 
-    
+    total_offer = 0
     order = Order.objects.create(user = user_details, delivery_address = profile, status = 'PENDING', grand_total = user_cart.grand_total )
     for cart in cart_product:
+        total_offer = total_offer + cart.product.offer
         ProductOrders.objects.create(product = cart.product, quantity = cart.quantity, total_amount = cart.total_amount, main_order = order)
-    print(user_email.first_name)
+    order.grand_total = order.grand_total - total_offer
+    order.save()
     cart_product.delete()
     return HttpResponse('succesful')
 
@@ -327,12 +317,17 @@ def checkout(request,check, id):
 
 def purchase(request,check,id):
     cart = Cart.objects.get(user = id)
+    
     if request.method == "POST":
         return redirect(checkout,check,id)
-    return render(request,'purchase.html',{'check':check, 'id':id,'cart': cart} )
+    cartproduct = CartProduct.objects.filter(cart=cart)
+    total_offer = 0
+    for pros in cartproduct:
+        total_offer = pros.product.offer+total_offer
+    return render(request,'purchase.html',{'check':check, 'id':id,'cart': cart, 'offer':total_offer} )
 
 
-
+ 
 def add_quantity(request, us, op, pro):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest' :
         pass    
@@ -383,7 +378,6 @@ def hello(request):
         us = request.user
         print(us)
         pro = json.loads(request.body)['number']
-        print(pro, '*************************')
         carts = Cart.objects.get(user=us)
         cartproduct = CartProduct.objects.get(product=pro, cart = carts)
         product = Products.objects.get(id = pro)

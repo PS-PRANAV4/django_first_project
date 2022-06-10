@@ -38,10 +38,7 @@
 </tr>
 </thead>
 <tbody>
-    user = models.ForeignKey(Accounts, on_delete=models.CASCADE, blank=True)
-    delivery_address = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    status = models.CharField(choices= delivery_choices, default="PENDING", max_length=20)
-    grand_total = models.IntegerField(blank =True)
+  
 {% for order in orders %}
 <tr>
 <th scope="row">{{forloop.counter}}</th>

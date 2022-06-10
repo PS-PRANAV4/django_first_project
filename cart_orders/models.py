@@ -23,7 +23,8 @@ class CartProduct(models.Model):
     
 
     def __str__(self):
-        return self.cart.user.username
+        a = ( self.cart.user.username, self.product.name)
+        return '-'.join(a)
     
     
 

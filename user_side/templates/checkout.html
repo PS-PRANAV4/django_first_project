@@ -4,6 +4,7 @@
 
 {% block content %}
 {% load static %}
+{% load mathfilters %}
 <!-- Page Preloder -->
     <div id="preloder">
         <div class="loader"></div>
@@ -42,7 +43,7 @@
                             <h6 class="coupon__code"><span class="icon_tag_alt"></span> Have a coupon? <a href="#">Click
                             here</a> to enter your code</h6>
                             <h6 class="checkout__title">Billing Details</h6>
-                            <input name="check" type="checkbox">
+                            <input name="check" value="0" type="radio">
                             <div class="row">
                                 
                                 <div class="col-lg-6">
@@ -111,18 +112,21 @@
                                 <div class="checkout__order__products">Product <span>Total</span></div>
                                 <ul class="checkout__total__products">
                                     {% for cartproduct in cartproducts %}
-                                    <li>{{forloop.counter}} .   {{cartproduct.product.name}} <span>$ {{cartproduct.total_amount}} </span></li>
+                                    <li>{{forloop.counter}} .   {{cartproduct.product.name}} <span>₹{{cartproduct.total_amount}} </span></li>
                                     {% endfor %}
                                 </ul>
                                 <ul class="checkout__total__all">
                                     
-                                    <li>Total <span>${{cart.grand_total}}</span></li>
+                                    <li>Total <span>₹{{cart.grand_total}}</span></li>
+                                    <li>product offers <span>₹{{offer}}</span></li>
+                                    <hr style="color: blue;" >
+                                    <li>GRAND TOTAL<span>₹{{cart.grand_total|sub:offer}}</span></li>
                                 </ul>
                                 {% for prof in profile %}
                                 <div class="checkout__input__checkbox">
                                     <label for="acc-or{{forloop.counter}}">
                                         {{prof.address}}
-                                        <input type="checkbox" id="acc-or{{forloop.counter}}" value="{{prof.id}}" name="check{{forloop.counter}}">
+                                        <input type="radio" id="acc-or{{forloop.counter}}" value="{{prof.id}}" name="check">
                                         <span class="checkmark"></span>
                                     </label>
                                 </div>
