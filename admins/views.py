@@ -14,6 +14,8 @@ from product.models import Category,Products
 from cart_orders.models import Cart,CartProduct,Order,ProductOrders
 import os
 from django.core.paginator import Paginator
+from django.db.models import Count,Avg,Sum
+from django.db.models.functions import TruncMonth,TruncDate,TruncWeek
 # Create your views here.
  
 
@@ -56,8 +58,8 @@ def signin(request):
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
 @login_required(login_url=signin)
 def main(request):
-    orders = Order.objects.all().order_by('id')
-    return render(request, 'admin_T/first.html',{'orders':orders} )   
+    
+    return render(request, 'admin_T/first.html')   
 
 
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
@@ -242,5 +244,23 @@ def change(request,id,status = None):
     else:
         order.status = "PENDING"
     order.save()
-    return redirect(main)
-    
+    return redirect(orders_list)
+
+
+def orders_list(request):
+    orders = Order.objects.all().order_by('id')
+    return render(request, 'admin_T/orders.html',{'orders':orders} )
+
+def daily_report(request):
+    report = Order.objects.filter(status='DELIVERED').annotate(day=TruncDate('order_date')).values('day').annotate(count=Count('id')).annotate(sum=Sum('grand_total'))
+    return render(request,'admin_T/daily_report.html',{'report': report})
+
+
+def monthly_report(request):
+    report = Order.objects.filter(status='DELIVERED').annotate(month=TruncMonth('order_date')).values('month').annotate(count=Count('id')).annotate(sum=Sum('grand_total'))
+    return render(request,'admin_T/monthly_report.html',{'report': report})
+
+
+def weekly_report(request):
+    report = Order.objects.filter(status='DELIVERED').annotate(weekly=TruncWeek('order_date')).values('weekly').annotate(count=Count('id')).annotate(sum=Sum('grand_total'))
+    return render(request,'admin_T/weekly_report.html',{'report': report})

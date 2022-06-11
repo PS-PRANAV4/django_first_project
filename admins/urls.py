@@ -20,6 +20,11 @@ urlpatterns = [
     path('change_order_status/<int:id>',views.change),
     path('change_order_status/<int:id>/<str:status>',views.change),
     path('accounts',views.account),
+    path('orders',views.orders_list),
+    path('daily',views.daily_report),
+    path('monthly',views.monthly_report),
+    path('weekly',views.weekly_report),
+
     
     
 ]

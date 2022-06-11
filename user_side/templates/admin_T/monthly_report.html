@@ -1,0 +1,35 @@
+{% extends 'admin_T/main.html' %}
+
+
+        {% block content %}
+        {% load static %}
+<div class="col-12 tm-block-col">
+    <div class="tm-bg-primary-dark tm-block tm-block-taller tm-block-scroll">
+        <h2 class="tm-block-title">Orders List</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">SL/no</th>
+                    <th scope="col">DATE</th>
+                    <th scope="col">TOTAL NO OF ORDERS</th>
+                    <th scope="col">TOTAL AMOUNT OF SALE</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+               {% for reports in report %}
+                <tr>
+                    <th scope="row"><b>{{forloop.counter}}</b></th>
+                    
+                    <td><b>{{reports.month}}</b></td>
+                    <td><b>{{reports.count}}</b></td>
+
+                    <td>{{reports.sum}}</td>
+                    
+                </tr>
+   {% endfor %}             
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -42,10 +42,14 @@
 {% for order in orders %}
 <tr>
 <th scope="row">{{forloop.counter}}</th>
-<td>{{order.delivery_address.address}}</td>
+<td>{{order.delivery_address}}</td>
 <td>{{order.grand_total}}</td>
 <td>{{order.status}}</td>
+{% if order.status == 'CANCEL' %}
+<td>ORDER CANCELED</td>
+{% else %}
 <td><a href="/user_profile/cancel/{{order.id}}"> CANCEL ORDER</a></td>
+{% endif %}
 </tr>
 {% endfor %}
 </tbody>

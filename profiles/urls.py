@@ -12,6 +12,7 @@ path('add_address/<int:id>',views.add_address),
 path('orders/<int:id>',views.orders),
 path('cancel/<int:id>',views.cancel),
 path('account/<int:id>',views.account),
+
     
     
 ]
