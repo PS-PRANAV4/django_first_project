@@ -1,6 +1,7 @@
 
 import email
 import json
+from turtle import home
 from unicodedata import category
 from django.http import HttpResponse
 from django.shortcuts import render,redirect
@@ -224,7 +225,8 @@ def check_out(request,id):
     if request.method == "POST":
         check  = request.POST.get('check')
         print(check)
-        if check == 0:
+        
+        if check == '0' :
             first_name  = request.POST.get('first_name')
             last_name = request.POST.get('last_name')
             country = request.POST.get('country')
@@ -236,7 +238,7 @@ def check_out(request,id):
             pin = request.POST.get('pin')
             email = request.POST.get('email')
             notes = request.POST.get('note')
-            address = address1+address2
+            address = address1+' ' +address2
             user = Accounts.objects.get(id=id)
             new_profile = Profile.objects.create(first_name = first_name, last_name = last_name, country_name = country, address = address, town_city = town, state = state , phone_number = phone, post_code = pin, email = email, notes = notes,accounts = user)
             check1 = new_profile.id
@@ -295,37 +297,44 @@ def delete_cart(request,id, us):
     return redirect(cart,us)
 
 def checkout(request,check, id):
+    
     profile = Profile.objects.get(id=check)
     user_email = profile.accounts
     user_details = Accounts.objects.get(email=user_email)
     
     user_cart = Cart.objects.get(user = user_details)
     cart_product = CartProduct.objects.filter(cart = user_cart)
+    if user_cart.grand_total > 0:
+        total_offer = 0
+        order = Order.objects.create(user = user_details, delivery_address = profile, status = 'PENDING', grand_total = user_cart.grand_total )
+        for cart in cart_product:
+            total_offer = total_offer + cart.product.offer
+            ProductOrders.objects.create(product = cart.product, quantity = cart.quantity, total_amount = cart.total_amount, main_order = order)
+        order.grand_total = order.grand_total - total_offer
+        order.save()
+        cart_product.delete()
+        user_cart.grand_total = 0
+        user_cart.save()
+        id = order.id
+        return redirect(invoice,id)
+    else:
+        return redirect(first)
 
-    total_offer = 0
-    order = Order.objects.create(user = user_details, delivery_address = profile, status = 'PENDING', grand_total = user_cart.grand_total )
-    for cart in cart_product:
-        total_offer = total_offer + cart.product.offer
-        ProductOrders.objects.create(product = cart.product, quantity = cart.quantity, total_amount = cart.total_amount, main_order = order)
-    order.grand_total = order.grand_total - total_offer
-    order.save()
-    cart_product.delete()
-    return HttpResponse('succesful')
 
-
-
-
+@cache_control(no_cache = True, must_revalidate = True, no_store = True)
 def purchase(request,check,id):
     cart = Cart.objects.get(user = id)
+    if cart.grand_total>0:
     
-    if request.method == "POST":
-        return redirect(checkout,check,id)
-    cartproduct = CartProduct.objects.filter(cart=cart)
-    total_offer = 0
-    for pros in cartproduct:
-        total_offer = pros.product.offer+total_offer
-    return render(request,'purchase.html',{'check':check, 'id':id,'cart': cart, 'offer':total_offer} )
-
+        if request.method == "POST":
+            return redirect(checkout,check,id)
+        cartproduct = CartProduct.objects.filter(cart=cart)
+        total_offer = 0
+        for pros in cartproduct:
+            total_offer = pros.product.offer+total_offer
+        return render(request,'purchase.html',{'check':check, 'id':id,'cart': cart, 'offer':total_offer} )
+    else:
+        return redirect(first)
 
  
 def add_quantity(request, us, op, pro):
@@ -413,3 +422,16 @@ def hel(request):
         carts.save()
         cars = cartproduct.quantity
         return JsonResponse({'data': f"{cars}"})
+
+
+
+def invoice(request,id):
+    
+    order = Order.objects.get(id=id)
+    productorder = ProductOrders.objects.filter(main_order = order)
+    total = 0
+    offer = 0
+    for product in productorder:
+        total = total + product.total_amount
+        offer = offer + product.product.offer 
+    return render(request,'invoice.html',{'order':order, 'products': productorder,'total':total,'offer':offer})

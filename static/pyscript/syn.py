@@ -36,7 +36,7 @@ async def send_add_onclick(e):
 
 
 def mes():
-    button1 = document.getElementById('bu')
+    button1 = document.getElementById('bu{{forloop.counter}}')
     button1.addEventListener('click',pyodide.create_proxy(send_add_onclick))
 
 mes()

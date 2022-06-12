@@ -53,23 +53,135 @@
                                     <td class="quantity__item">
                                         <div class="quantity">
                                             {% if product.quantity > 1 %}
-                                            <span id="bu"  type="submit"  style="font-weight: 900; font-size: 3ch; color: brown;" >- </a>
-                                                <py-script src="{% static 'pyscript/syn.py' %}" >
-                                                
+                                            <span id="bu{{forloop.counter}}"  type="submit"  style="font-weight: 900; font-size: 3ch; color: brown;" >- </a>
+                                                <py-script  >
+                                                    from xml.dom.minidom import Element
+                                                    import pyodide
+                                                    from pyodide.http import pyfetch
+                                                    import json
+                                                    from js import document
+                                                    
+                                                    
+                                                    
+                                                    
+                                                    async def make_request(url,method,body=None,headers=None):
+                                                        default_headers = {
+                                                            'X-Requested-with': 'XMLHttpRequest',
+                                                            'content-type': 'application/json',
+                                                    
+                                                        }
+                                                    
+                                                        if  headers:
+                                                            headers = default_headers.update(headers)
+                                                        response = await pyfetch(
+                                                            url=url, method=method, body=body, headers=default_headers
+                                                        )
+                                                    
+                                                        return await response.json()
+                                                    
+                                                    
+                                                    async def send_add_onclick(e):
+                                                        
+                                                        
+                                                        csrf = document.getElementsByName('csrfmiddlewaretoken')[0].value
+                                                        number = document.getElementById('lome{{forloop.counter}}').value;
+                                                        body = json.dumps({'number': number})
+                                                        headers = {'X-CSRFToken' : csrf}
+                                                        data = await make_request(url='/hel',method='POST', body=body,headers=headers)
+                                                        ul = document.getElementById('me{{forloop.counter}}')
+                                                        ul.innerHTML = data['data']
+                                                    
+                                                    
+                                                    def mes():
+                                                        button1 = document.getElementById('bu{{forloop.counter}}')
+                                                        button1.addEventListener('click',pyodide.create_proxy(send_add_onclick))
+                                                    
+                                                    mes()
                                                 </py-script>
                                             {% endif %}
-                                            <div id="me" >{{product.quantity}}</div>
+                                            <div id="me{{forloop.counter}}" >{{product.quantity}}</div>
                                                 
-                                                <input type="text" id="lome" style="display: none;"  value="{{product.product.id}}">
+                                                <input type="text" id="lome{{forloop.counter}}" style="display: none;"  value="{{product.product.id}}">
                                                 
                                             
                                         </div>
                                         
                                     </td>
                                     
-                                    <td class="cart__price">  <span style="font-weight: 800; color: brown;" id="bus" type="submit">+</span> 
+                                    <td class="cart__price">  <span style="font-weight: 800; color: brown;" id="bus{{forloop.counter}}" type="submit">+</span> 
                                         ₹{{product.total_amount}}</td>
                                     <td class="cart__close"><a href="/delete/{{product.id}}/{{user.id}}"><i class="fa fa-close"></i></a></td>
+                                    <py-script>
+                                        
+                                        from xml.dom.minidom import Element
+                                        import pyodide
+                                        from pyodide.http import pyfetch
+                                        import json
+                                        from js import document
+
+                                        # def on_click(e):
+                                        #     ul = document.getElementById('left')
+                                        #     ul.innerHTML = 'hello world'
+
+                                        x=0
+
+                                        async def make_request(url,method,body=None,headers=None):
+                                            default_headers = {
+                                                'X-Requested-with': 'XMLHttpRequest',
+                                                'content-type': 'application/json',
+
+                                            }
+
+                                            if  headers:
+                                                headers = default_headers.update(headers)
+                                            response = await pyfetch(
+                                                url=url, method=method, body=body, headers=default_headers
+                                            )
+
+                                            return await response.json()
+
+
+
+                                        # async def get_number_onclick(e):
+                                        #     data =await make_request(url='/hello', method='GET')
+                                        #     ul = document.getElementById('left')
+                                        #     ul.innerHTML = data['number']
+
+                                        async def send_minus_onclick(e):
+                                            
+                                            id = e.target.innerHTML
+                                            csrf = document.getElementsByName('csrfmiddlewaretoken')[0].value
+                                            number = document.getElementById('lome{{forloop.counter}}').value;
+                                            body = json.dumps({'number': number})
+                                            headers = {'X-CSRFToken' : csrf}
+                                            data = await make_request(url='/hello',method='POST', body=body,headers=headers)
+                                            ul = document.getElementById('me{{forloop.counter}}')
+                                            ul.innerHTML = data['data']
+                                            
+                                        # async def send_add_onclick(e):
+                                        #     number = 5
+                                            
+                                        #     csrf = document.getElementsByName('csrfmiddlewaretoken')[0].value
+                                        #     body = json.dumps({'number': number})
+                                        #     headers = {'X-CSRFToken' : csrf}
+                                        #     data = await make_request(url='/hello',method='POST', body=body,headers=headers)
+                                        #     ul = document.getElementById('me{{forloop.counter}}')
+                                        #     ul.innerHTML = data['data']
+
+
+
+                                        def main():
+
+                                            button = document.getElementById('bus{{forloop.counter}}')
+                                            # button1 = document.getElementById('bu')
+                                            # button1.addEventListener('click',pyodide.create_proxy(send_add_onclick))
+                                            button.addEventListener('click',pyodide.create_proxy(send_minus_onclick))
+                                            
+
+                                        main()
+
+                                    </py-script>
+
                                 </tr>
                                {% endfor %}
                             </tbody>

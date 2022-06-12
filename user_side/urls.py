@@ -20,6 +20,8 @@ urlpatterns = [
     path('quantity/<int:us>/<str:op>/<int:pro>',views.add_quantity),
     path('hello',views.hello),
     path('hel',views.hel),
+    path('invoice/<id>',views.invoice),
+
     
     
 ]
