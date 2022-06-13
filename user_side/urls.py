@@ -21,6 +21,7 @@ urlpatterns = [
     path('hello',views.hello),
     path('hel',views.hel),
     path('invoice/<id>',views.invoice),
+    path('paypaypal',views.paypal),
 
     
     

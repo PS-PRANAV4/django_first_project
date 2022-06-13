@@ -8,7 +8,7 @@ class Manager(BaseUserManager):
 
     def create_user(self, first_name, last_name, username, email, password=None):
         if not email:
-            raise ValueError('user must have an emal')
+            raise ValueError('user must have an email')
         
         if not username:
             raise ValueError('user must have an username')
@@ -46,6 +46,7 @@ class Accounts(AbstractBaseUser):
     username = models.CharField(max_length=50, unique=True)
     email = models.EmailField(max_length=100,unique=True)
     phone_number = models.CharField(max_length=50,blank=True)
+    profile_pic = models.ImageField(upload_to = 'photos/profile_pic', blank = True, max_length=300)
 
 
 

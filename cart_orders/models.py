@@ -4,9 +4,10 @@ from django.db import models
 from product.models import Products
 from admins.models import Accounts
 from profiles.models import Profile
+import uuid
 # Create your models here.
 
-delivery_choices = (("PENDING", "PENDING"),("ACCEPTED", "ACCEPTED"), ("DELIVERED","DELIVERED"),("CANCELED","CANCELED"))
+delivery_choices = (("PENDING", "PENDING"),("ACCEPTED", "ACCEPTED"), ("DELIVERED","DELIVERED"),("CANCELED","CANCELED"),("FAILED","FAILED"))
 
 class Cart(models.Model):
     user = models.OneToOneField(Accounts, on_delete=models.CASCADE, blank=True)
@@ -37,6 +38,8 @@ class Order(models.Model):
     grand_total = models.IntegerField(blank =True)
     order_date = models.DateTimeField(auto_now_add=True,blank=True, null=True)
     delivery_date = models.DateTimeField(blank=True, null=True)
+    order_id = models.UUIDField(editable=False,default=uuid.uuid4,blank=True,null=True)
+    transaction_id = models.CharField(max_length=100,blank=True,null=True)
 
     def __str__(self):
         return self.user.username

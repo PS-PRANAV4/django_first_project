@@ -10,6 +10,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required
+from requests import request
 from admins.models import Accounts
 from admins.views import product
 from product.models import Products,Category
@@ -251,7 +252,7 @@ def check_out(request,id):
         
     total_offer = 0
     for pros in cartproducts:
-        total_offer = total_offer + pros.product.offer
+        total_offer = total_offer + pros.product.offer*pros.quantity
        
     return render(request,'checkout.html',{'profile': profile,"cart": cart, "cartproducts": cartproducts, 'offer':total_offer })
 
@@ -261,7 +262,7 @@ def cart(request, us):
     full_cart = CartProduct.objects.filter(cart = single_cart)
     total_offer = 0
     for product in full_cart:
-        total_offer = total_offer+product.product.offer
+        total_offer = total_offer+product.product.offer*product.quantity
     
     return render(request,'shopping-cart.html',{'products':full_cart,'single':single_cart,'offer':total_offer})
 
@@ -308,7 +309,7 @@ def checkout(request,check, id):
         total_offer = 0
         order = Order.objects.create(user = user_details, delivery_address = profile, status = 'PENDING', grand_total = user_cart.grand_total )
         for cart in cart_product:
-            total_offer = total_offer + cart.product.offer
+            total_offer = total_offer + cart.product.offer*cart.quantity
             ProductOrders.objects.create(product = cart.product, quantity = cart.quantity, total_amount = cart.total_amount, main_order = order)
         order.grand_total = order.grand_total - total_offer
         order.save()
@@ -331,7 +332,7 @@ def purchase(request,check,id):
         cartproduct = CartProduct.objects.filter(cart=cart)
         total_offer = 0
         for pros in cartproduct:
-            total_offer = pros.product.offer+total_offer
+            total_offer = pros.product.offer*pros.quantity+total_offer
         return render(request,'purchase.html',{'check':check, 'id':id,'cart': cart, 'offer':total_offer} )
     else:
         return redirect(first)
@@ -435,3 +436,13 @@ def invoice(request,id):
         total = total + product.total_amount
         offer = offer + product.product.offer 
     return render(request,'invoice.html',{'order':order, 'products': productorder,'total':total,'offer':offer})
+
+
+def paypal(request):
+    body = json.loads(request.body)
+    check = body['ad']
+    id = body['id']
+    status = body['status']
+    if status == 'COMPLETED':
+        return redirect(checkout,check,id)
+    

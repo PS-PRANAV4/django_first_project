@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'cart_orders',
     'profiles',
     'mathfilters',
+    'razorpayment.apps.RazorpaymentConfig'
 ]
 
 MIDDLEWARE = [
