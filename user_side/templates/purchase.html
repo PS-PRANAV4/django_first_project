@@ -118,7 +118,7 @@
         return cookieValue;
     }
     
-    var amount = {{cart.grand_total|sub:offer}}
+    var amount = "{{cart.grand_total|sub:offer}}"
     
     var csrftoken = getCookie('csrftoken');
         // Render the PayPal button into #paypal-button-container
@@ -158,9 +158,11 @@
                             id : "{{id}}",
                         }),
                     })
-                    //.then(response => response.json())
-                    //.then(data => console.log(data));
-                }
+                    .then(response => response.json())
+                    .then((data) => { 
+                        window.location.href = "/checkout/"+data.check+"/"+data.id
+                });
+            }
 
                 // Replace the above to show a success message within this page, e.g.
                 // const element = document.getElementById('paypal-button-container');

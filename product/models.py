@@ -20,7 +20,7 @@ class Category(models.Model):
     namer = models.CharField(max_length=50)
     image = models.ImageField(upload_to = 'photos/category',blank = True)
     description = models.TextField()
-    main_cate = models.ForeignKey(MainCategory,blank=True,null=True, on_delete=models.CASCADE)
+    main_cate = models.ForeignKey(MainCategory,blank=True,null=True, on_delete=models.CASCADE, related_name='main_cate')
 
     def __str__(self):
         return self.namer
@@ -32,7 +32,7 @@ class Products(models.Model):
     price = models.IntegerField()
     offer = models.IntegerField(default=0)
     stock = models.IntegerField()
-    category_id = models.ForeignKey(Category, on_delete=models.PROTECT)
+    category_id = models.ForeignKey(Category, on_delete=models.PROTECT, related_name='category')
     image_product = models.ImageField(upload_to = 'photos/products', blank = True, max_length=300)
     image_product4 = models.ImageField(upload_to = 'photos/products2', blank = True, max_length=300)
     image_product5 = models.ImageField(upload_to = 'photos/products3', blank = True, max_length=300)

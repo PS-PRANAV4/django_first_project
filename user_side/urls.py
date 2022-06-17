@@ -12,7 +12,7 @@ urlpatterns = [
     path('addcart/<int:id>/<int:us>',views.addcart ),
     path('product/<int:id>',views.product_details ),
     path('cart/<int:us>',views.cart),
-    # path('verify/', views.verify_view),
+    path('verify/', views.verify_view),
     path('check/<int:id>',views.check_out ),
     path('delete/<int:id>/<int:us>',views.delete_cart ),
     path('checkout/<int:check>/<int:id>',views.checkout ),
@@ -22,6 +22,8 @@ urlpatterns = [
     path('hel',views.hel),
     path('invoice/<id>',views.invoice),
     path('paypaypal',views.paypal),
+    path('filter',views.filter),
+    path('invoice/pdf/<int:id>',views.invoice_pdf),
 
     
     

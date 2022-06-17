@@ -1,5 +1,7 @@
+from datetime import datetime
 from email.policy import default
 from multiprocessing import context
+from pickle import TRUE
 from tokenize import Number
 from unicodedata import name
 from django.http import HttpResponse
@@ -9,6 +11,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required
+from requests import delete
 from .models import Accounts,Manager
 from product.models import Category,Products
 from cart_orders.models import Cart,CartProduct,Order,ProductOrders
@@ -16,7 +19,17 @@ import os
 from django.core.paginator import Paginator
 from django.db.models import Count,Avg,Sum
 from django.db.models.functions import TruncMonth,TruncDate,TruncWeek
-# Create your views here.
+import datetime
+from django.template.loader import render_to_string
+import os
+
+GTK_FOLDER = r'C:\Program Files\GTK3-Runtime Win64\bin'
+os.environ['PATH'] = GTK_FOLDER + os.pathsep + os.environ.get('PATH', '')
+from weasyprint import HTML
+
+import tempfile
+from django.db.models import Sum
+
  
 
 
@@ -167,7 +180,7 @@ def edit_product(request,id):
 def product(request):
     pro = Products.objects.all().order_by('id')
     cats = Category.objects.all()
-    product = Paginator(pro,2) 
+    product = Paginator(pro,5) 
     product_number = request.GET.get('pages')
        
     try:
@@ -264,3 +277,61 @@ def monthly_report(request):
 def weekly_report(request):
     report = Order.objects.filter(status='DELIVERED').annotate(weekly=TruncWeek('order_date')).values('weekly').annotate(count=Count('id')).annotate(sum=Sum('grand_total'))
     return render(request,'admin_T/weekly_report.html',{'report': report})
+
+def daily_pdf(request):
+    report = Order.objects.filter(status='DELIVERED').annotate(day=TruncDate('order_date')).values('day').annotate(count=Count('id')).annotate(sum=Sum('grand_total'))
+    response = HttpResponse(content_type = 'application/pdf')
+    
+    
+    response['Content-Disposition'] = 'inline; attachment; filename = daily report'+ \
+        str(datetime.datetime.now()) + '.pdf'
+    response["Content-Transfer-Encoding"] = 'binary'
+    html_string = render_to_string('admin_T/pdf_output.html',{'order': report})
+    html = HTML(string= html_string)
+    result = html.write_pdf()
+    with tempfile.NamedTemporaryFile(delete=TRUE) as output:
+        output.write(result)
+        output.flush()
+        output.seek(0) 
+        response.write(output.read())
+    
+    return response
+
+def weekly_pdf(request):
+    report = Order.objects.filter(status='DELIVERED').annotate(day=TruncWeek('order_date')).values('day').annotate(count=Count('id')).annotate(sum=Sum('grand_total'))
+    response = HttpResponse(content_type = 'application/pdf')
+    
+    
+    response['Content-Disposition'] = 'inline; attachment; filename = daily report'+ \
+        str(datetime.datetime.now()) + '.pdf'
+    response["Content-Transfer-Encoding"] = 'binary'
+    html_string = render_to_string('admin_T/pdf_output.html',{'order': report})
+    html = HTML(string= html_string)
+    result = html.write_pdf()
+    with tempfile.NamedTemporaryFile(delete=TRUE) as output:
+        output.write(result)
+        output.flush()
+        output.seek(0) 
+        response.write(output.read())
+    
+    return response
+
+
+def monthly_pdf(request):
+    report = Order.objects.filter(status='DELIVERED').annotate(day=TruncMonth('order_date')).values('day').annotate(count=Count('id')).annotate(sum=Sum('grand_total'))
+    response = HttpResponse(content_type = 'application/pdf')
+    
+    
+    response['Content-Disposition'] = 'inline; attachment; filename = daily report'+ \
+        str(datetime.datetime.now()) + '.pdf'
+    response["Content-Transfer-Encoding"] = 'binary'
+    html_string = render_to_string('admin_T/pdf_output.html',{'order': report})
+    html = HTML(string= html_string)
+    result = html.write_pdf()
+    with tempfile.NamedTemporaryFile(delete=TRUE) as output:
+        output.write(result)
+        output.flush()
+        output.seek(0) 
+        response.write(output.read())
+    
+    return response

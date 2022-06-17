@@ -53,7 +53,7 @@
                                     <td class="quantity__item">
                                         <div class="quantity">
                                             {% if product.quantity > 1 %}
-                                            <span id="bu{{forloop.counter}}"  type="submit"  style="font-weight: 900; font-size: 3ch; color: brown;" >- </a>
+                                            <span id="bu{{forloop.counter}}"  type="submit"  style="font-weight: 900; font-size: 3ch; color: brown;" >- </a></span>
                                                 <py-script  >
                                                     from xml.dom.minidom import Element
                                                     import pyodide
@@ -157,7 +157,8 @@
                                             data = await make_request(url='/hello',method='POST', body=body,headers=headers)
                                             ul = document.getElementById('me{{forloop.counter}}')
                                             ul.innerHTML = data['data']
-                                            
+                                            ms = document.getElementById('ghg')
+                                            ms.innerHTML = data['yes']
                                         # async def send_add_onclick(e):
                                         #     number = 5
                                             
@@ -203,7 +204,7 @@
                     <div class="cart__total">
                         <h6>Cart total</h6>
                         <ul>
-                            <li>Total <span>₹{{single.grand_total}}</span></li>
+                            <li>Total <span id="ghg">₹{{single.grand_total}}</span></li>
                              <li>offers <span>₹{{offer}}</span></li>
                              <hr style="color: blue;" >
                              <li>GRAND TOTAL <span>₹{{single.grand_total|sub:offer}}</span></li>

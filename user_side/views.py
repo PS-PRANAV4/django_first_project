@@ -13,13 +13,23 @@ from django.contrib.auth.decorators import login_required
 from requests import request
 from admins.models import Accounts
 from admins.views import product
-from product.models import Products,Category
+from product.models import MainCategory, Products,Category
 from .utils import send_sms
 from codes.forms import CodeForm
 from django.contrib.auth.forms import AuthenticationForm
 from cart_orders.models import Cart,CartProduct, Order, ProductOrders
 from profiles.models import Profile
 from django.http import JsonResponse
+import datetime
+from django.template.loader import render_to_string
+import os
+
+GTK_FOLDER = r'C:\Program Files\GTK3-Runtime Win64\bin'
+os.environ['PATH'] = GTK_FOLDER + os.pathsep + os.environ.get('PATH', '')
+from weasyprint import HTML
+
+import tempfile
+from django.db.models import Sum
 
 # Create your views here.
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
@@ -146,14 +156,17 @@ def signup(request):
         
         if number:
             my_user.phone_number = number
+            request.session['pk'] = my_user.pk
+            
         print('user created')
+        my_user.is_active = False
         my_user.save()
         print(my_user.id)
         cart = Cart.objects.create(user = my_user)
         print('user created')
-        messages.success(request, "u succesfully created a user  you can login now")
-         
-        return redirect(first)
+        messages.success(request, "u succesfully created a user now verify the number")
+        
+        return redirect(verify_view)
     else:
         n = { 'login':'SIGNUp',
                 'value':0
@@ -196,26 +209,30 @@ def product_details(request,id):
     return render(request,'product_person.html',{'pro': pro})
 
 
-# def verify_view(request):
-#     form = CodeForm(request.POST or None)
-#     pk = request.session.get('pk')
-#     if pk:
-#         user = Accounts.objects.get(pk=pk)
-#         code = user.code
-#         code_user = f"{user.username}: {user.code}"
-#         if not request.POST:
-#             print(code_user)
-#             send_sms(code_user, user.phone_number)
-#         if form.is_valid():
-#             num = form.cleaned_data.get('number')
+def verify_view(request):
+    form = CodeForm(request.POST or None)
+    pk = request.session.get('pk')
+    if pk:
+        user = Accounts.objects.get(pk=pk)
+        code = user.code
+        code_user = f"{user.username}: {user.code}"
+        if not request.POST:
+            print(code_user)
+            send_sms(code_user, user.phone_number)
+        if form.is_valid():
+            num = form.cleaned_data.get('number')
 
-#             if str(code) == num:
-#                 code.save()
-#                 login(request,user)
-#                 return redirect(first)
-#             else:
-#                 return redirect(signin)
-#     return render(request, 'verify.html', {'form':form})
+            if str(code) == num:
+                code.save()
+                messages.success(request,'phone no verified')
+                user.is_active = True
+                user.save()
+                return redirect(signin)
+            else:
+                messages.error(request, 'wrong otp account not created')
+                user.delete()
+                return redirect(signin)
+    return render(request, 'verify.html', {'form':form})
 
 
 
@@ -402,7 +419,7 @@ def hello(request):
         carts.grand_total = total
         carts.save()
         cars = cartproduct.quantity
-        return JsonResponse({'data': f"{cars}"})
+        return JsonResponse({'data': f"{cars}", 'yes': carts.grand_total})
 
 def hel(request):
     if request.method == "POST":
@@ -435,6 +452,7 @@ def invoice(request,id):
     for product in productorder:
         total = total + product.total_amount
         offer = offer + product.product.offer 
+    print('jjjjjjjjjjjjjjjjjjjjjjj')
     return render(request,'invoice.html',{'order':order, 'products': productorder,'total':total,'offer':offer})
 
 
@@ -443,6 +461,51 @@ def paypal(request):
     check = body['ad']
     id = body['id']
     status = body['status']
+    data = {'check': check, 'id': id}
     if status == 'COMPLETED':
-        return redirect(checkout,check,id)
+        return JsonResponse(data)
     
+@cache_control(no_cache = True, must_revalidate = True, no_store = True)
+def filter(request):
+    main = request.GET.get('main')
+    product = Products.objects.none()
+    if main:
+        main =Category.objects.filter(main_cate__id = main)
+        for category in main:
+            cate = category.category.all()
+            product |= cate
+            print(cate)
+            print(product)
+            
+                
+                
+                
+        
+    return render(request, 'filter.html',{'products':product})
+
+
+def invoice_pdf(request,id):
+    order = Order.objects.get(id=id)
+    productorder = ProductOrders.objects.filter(main_order = order)
+    total = 0
+    offer = 0
+    for product in productorder:
+        total = total + product.total_amount
+        offer = offer + product.product.offer
+    
+    response = HttpResponse(content_type = 'application/pdf')
+    
+    
+    response['Content-Disposition'] = 'inline; attachment; filename = daily report'+ \
+        str(datetime.datetime.now()) + '.pdf'
+    response["Content-Transfer-Encoding"] = 'binary'
+    html_string = render_to_string('invoice.html',{'order':order, 'products': productorder,'total':total,'offer':offer})
+    html = HTML(string= html_string)
+    result = html.write_pdf()
+    with tempfile.NamedTemporaryFile(delete=True) as output:
+        output.write(result)
+        output.flush()
+        output.seek(0) 
+        response.write(output.read())
+    
+    return response

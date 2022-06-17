@@ -1,0 +1,23 @@
+{% extends 'navbar.html' %}
+
+{% block content %}
+<div class="pt-5"></div>
+<div class="pt-5"></div>
+<div class="container  ">
+  <div class="row col-12" style="display: flex; justify-content: center;">
+  {% for product in products %}
+<div class="card mt-5 pl-5 mr-5" style="width: 18rem; border-radius: 74px;
+background: #e0e0e0;
+box-shadow:  9px 9px 18px #898989,
+             -9px -9px 18px #ffffff;">
+  <img class="card-img-top pt-5"  src="{{product.image_product.url}}" style="height: 50%; margin-left: -2ch;" alt="Card image cap">
+  <div class="card-body">
+    <h5 class="card-title" style= 'margin-left: -2.3ch;'>{{product.name}}</h5>
+    <p class="card-text">{{product.price}}</p>
+    <a href="#" class="btn btn-primary ml-7" style= 'margin-left: -2.3ch;'>Go somewhere</a>
+  </div>
+</div>
+{% endfor %}
+</div>
+</div>
+{% endblock  %}

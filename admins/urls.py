@@ -24,6 +24,9 @@ urlpatterns = [
     path('daily',views.daily_report),
     path('monthly',views.monthly_report),
     path('weekly',views.weekly_report),
+    path('daily-pdf',views.daily_pdf),
+    path('monthly-pdf',views.monthly_pdf),
+    path('weekly-pdf',views.weekly_pdf),
 
     
     
