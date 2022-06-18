@@ -55,7 +55,7 @@
             <div id="paypal-button-container" class="pt-3"></div>
         </div>
         
-
+        {% if cart %}
         <div class="col-sm-3 col-md-4 offset-md-1 mobile">
             <div class="py-4 d-flex justify-content-end">
                 <h6><a href="#">Cancel and return to website</a></h6>
@@ -79,7 +79,35 @@
                     <div class="ml-auto"><b class="green">₹{{cart.grand_total|sub:offer}}</b></div>
                 </div>
             </div>
-        </div>        
+        </div> 
+        {% endif %}
+        {% if carts %}
+        
+        <div class="col-sm-3 col-md-4 offset-md-1 mobile">
+            <div class="py-4 d-flex justify-content-end">
+                <h6><a href="#">Cancel and return to website</a></h6>
+            </div>
+            <div class="bg-light rounded d-flex flex-column">
+                <div class="p-2 ml-3"><h4>Order Details</h4></div>
+                
+
+                <div class="border-top px-4 mx-3"></div>
+                <div class="p-2 d-flex pt-3">
+                    <div class="col-8"><b>Total</b></div>
+                    <div class="ml-auto"><b class="green">₹{{carts.total_amount}}</b></div>
+                </div>
+                <div class="p-2 d-flex pt-3">
+                    <div class="col-8"><b>product offers</b></div>
+                    <div class="ml-auto"><b class="green">₹{{offer}}</b></div>
+                </div>
+                <hr style="color: blue;" >
+                <div class="p-2 d-flex pt-3">
+                    <div class="col-8"><b> grand Total</b></div>
+                    <div class="ml-auto"><b class="green">₹{{cart.total_amount|sub:offer}}</b></div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
 

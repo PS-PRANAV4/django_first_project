@@ -4,11 +4,24 @@
         {% block content %}
         {% load static %}
 <div class="col-12 tm-block-col">
+    <form action="/admins/daily" method="POST">
+        {% csrf_token %}
+        <div style="display: flex;">
+        <label for="from" style="display: block;
+        font: 1rem 'Fira Sans', sans-serif; margin: .4rem 0;">from</label>
+        <input type="date" style=" margin: .4rem 0;" name="from" id="from">
+        <label for="to" style="display: block;
+        font: 1rem 'Fira Sans', sans-serif; margin: .4rem 0;">TO</label>
+        <input type="date" style=" margin: .4rem 0;" name="to" id="to">
+    </div>
+    <button type="submit">submit</button>
+    </form>
     <div class="tm-bg-primary-dark tm-block tm-block-taller tm-block-scroll">
         <h2 class="tm-block-title">Orders List</h2>
         <div style="width: 100%; display: flex; justify-content: end;" >
        
         <a href="/admins/daily-pdf" class="btn btn-warning">DOWNLOAD PDF</a> 
+       
     </div>
         <table class="table">
             <thead>

@@ -24,7 +24,8 @@ urlpatterns = [
     path('paypaypal',views.paypal),
     path('filter',views.filter),
     path('invoice/pdf/<int:id>',views.invoice_pdf),
-
+    path('buynow/<int:id>',views.buy_now),
+    path('check',views.check_out ),
     
     
 ]

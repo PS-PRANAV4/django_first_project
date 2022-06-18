@@ -151,8 +151,12 @@
                             <h5 class="fw-bold text-1000 text-truncate">{{product.name}}</h5>
                             <div class="fw-bold"><span class="text-600 me-2 text-decoration-line-through">₹{{product.price}}</span><span class="text-primary"> ₹{{product.price|sub:product.offer}}</span></div>
                           </div><a class="stretched-link" href="product/{{product.id}}"></a>
+                          
                         </div>
-                        
+                       
+                        <div style="width: 100%; display: flex; justify-content: center; " >
+                          <a href="/buynow/{{product.id}}" class="btn btn-danger pl-5" >BUY NOW</a>
+                        </div>
                       </div>
                       {% endif %}
                       {% endfor %}
@@ -195,8 +199,12 @@
                             <h5 class="fw-bold text-1000 text-truncate">{{product.name}}</h5>
                             <div class="fw-bold"><span class="text-600 me-2 text-decoration-line-through">₹{{product.price}}</span><span class="text-primary"> ₹{{product.price|sub:product.offer}}</span></div>
                           </div><a class="stretched-link" href="product/{{product.id}}"></a>
+                        
                         </div>
                         
+                        <div style="width: 100%; display: flex; justify-content: center; " >
+                          <a href="/buynow/{{product.id}}" class="btn btn-danger pl-5" >BUY NOW</a>
+                        </div>
                       </div>
                       {% else %}
                       
@@ -208,8 +216,11 @@
                             <h5 class="fw-bold text-1000 text-truncate">{{product.name}}</h5>
                             <div class="fw-bold"><span class="text-600 me-2 text-decoration-line-through"></span><span class="text-primary">₹{{product.price}} </span></div>
                           </div><a class="stretched-link" href="product/{{product.id}}"></a>
+                          
                         </div>
-                        
+                        <div style="width: 100%; display: flex; justify-content: center; " >
+                        <a href="/buynow/{{product.id}}" class="btn btn-danger pl-5" >BUY NOW</a>
+                      </div>
                       </div>
                     
                       {% endif %}

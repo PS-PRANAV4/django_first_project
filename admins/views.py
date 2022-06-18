@@ -261,11 +261,43 @@ def change(request,id,status = None):
 
 
 def orders_list(request):
-    orders = Order.objects.all().order_by('id')
-    return render(request, 'admin_T/orders.html',{'orders':orders} )
+    orders = Order.objects.all().order_by('-id')
+    order = Paginator(orders,7)
+    product_number = request.GET.get('pages')
+    try:
+        order_page = order.page(product_number)
+    except:
+        order_page = order.page(1) 
+    return render(request, 'admin_T/orders.html',{'orders':order_page} )
 
 def daily_report(request):
-    report = Order.objects.filter(status='DELIVERED').annotate(day=TruncDate('order_date')).values('day').annotate(count=Count('id')).annotate(sum=Sum('grand_total'))
+    if request.method == "POST":
+        frm = request.POST.get('from')
+        to = request.POST.get("to")
+        print(frm,to)
+        fro = frm.split('-')
+        too = to.split('-')
+        print(fro[0])
+        res = [int(item) for item in fro]
+        try:
+            pos = [int(item) for item in too]
+        except:
+            pos=[]
+        request.session['res'] = res
+        request.session['pos'] = pos
+        return redirect(daily_report) 
+    
+    pos = request.session.get('pos')
+    res = request.session.get('res')
+    try:
+        del request.session['pos']
+        del request.session['res']
+    except:
+        pass
+    try:
+        report = Order.objects.filter(status= "DELIVERED", order_date__gte=datetime.date(res[0],res[1],res[2]), order_date__lte=datetime.date(pos[0],pos[1],pos[2])).annotate(day=TruncDate('order_date')).values('day').annotate(count=Count('id')).annotate(sum=Sum('grand_total')).order_by('-day') 
+    except:
+        report = Order.objects.filter(order_date__gte=datetime.date(2022, 6, 1), order_date__lte=datetime.date(2022, 6, 30)).annotate(day=TruncDate('order_date')).values('day').annotate(count=Count('id')).annotate(sum=Sum('grand_total')).order_by('-day')
     return render(request,'admin_T/daily_report.html',{'report': report})
 
 
@@ -276,10 +308,12 @@ def monthly_report(request):
 
 def weekly_report(request):
     report = Order.objects.filter(status='DELIVERED').annotate(weekly=TruncWeek('order_date')).values('weekly').annotate(count=Count('id')).annotate(sum=Sum('grand_total'))
+    
     return render(request,'admin_T/weekly_report.html',{'report': report})
 
 def daily_pdf(request):
     report = Order.objects.filter(status='DELIVERED').annotate(day=TruncDate('order_date')).values('day').annotate(count=Count('id')).annotate(sum=Sum('grand_total'))
+    
     response = HttpResponse(content_type = 'application/pdf')
     
     

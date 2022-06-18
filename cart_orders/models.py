@@ -20,7 +20,7 @@ class CartProduct(models.Model):
     product = models.ForeignKey(Products, on_delete=models.CASCADE, blank=True)
     quantity = models.IntegerField(blank=True)
     total_amount = models.IntegerField(blank=True)
-    cart = models.ForeignKey(Cart, on_delete= models.CASCADE, blank=True)
+    cart = models.ForeignKey(Cart, on_delete= models.CASCADE, blank=True,null=True)
     
 
     def __str__(self):

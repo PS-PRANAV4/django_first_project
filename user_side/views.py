@@ -236,10 +236,31 @@ def verify_view(request):
 
 
 
-def check_out(request,id):
-    profile = Profile.objects.filter(accounts = id)
-    cart = Cart.objects.get(user = id)
-    cartproducts = CartProduct.objects.filter(cart = cart)
+def check_out(request,id = 0):
+    
+    try:
+        cart_product = request.session.get('cart_product')
+        print(cart_product)
+        print('here')
+        
+        
+        try:
+            profile = Profile.objects.filter(accounts = request.user.id)
+            cart = Cart.objects.get(user = id)
+            cartproducts = CartProduct.objects.filter(cart = cart)
+            
+        except:
+            pass
+    except:
+        print('no-way')
+        profile = Profile.objects.filter(accounts = id)
+        cart = Cart.objects.get(user = id)
+        cartproducts = CartProduct.objects.filter(cart = cart)
+    if cart_product == None:
+        print('no-way')
+        profile = Profile.objects.filter(accounts = id)
+        cart = Cart.objects.get(user = id)
+        cartproducts = CartProduct.objects.filter(cart = cart)
     if request.method == "POST":
         check  = request.POST.get('check')
         print(check)
@@ -266,12 +287,29 @@ def check_out(request,id):
         
         if check1 != None:
             return redirect(purchase,check1,id)
-        
-    total_offer = 0
-    for pros in cartproducts:
-        total_offer = total_offer + pros.product.offer*pros.quantity
+
+
+    if id > 0:
        
-    return render(request,'checkout.html',{'profile': profile,"cart": cart, "cartproducts": cartproducts, 'offer':total_offer })
+        try:
+            print('hereeeeeee')    
+            del request.session['cart_product']
+        except:
+            print('hesssssss')
+            pass
+
+
+    try:
+        cart_product = request.session.get('cart_product')
+        product = CartProduct.objects.get(id=cart_product)
+        print('hereornot')
+        return render(request,'checkout.html',{'profile': profile, 'cartproduct': product, 'offer':product.total_amount })
+    except:
+        total_offer = 0
+        for pros in cartproducts:
+            total_offer = total_offer + pros.product.offer*pros.quantity
+        print('her')
+        return render(request,'checkout.html',{'profile': profile,"cart": cart, "cartproduc": cartproducts, 'offer':total_offer })
 
 def cart(request, us):
     myuser = Accounts.objects.get(id=us)
@@ -315,13 +353,20 @@ def delete_cart(request,id, us):
     return redirect(cart,us)
 
 def checkout(request,check, id):
-    
     profile = Profile.objects.get(id=check)
     user_email = profile.accounts
     user_details = Accounts.objects.get(email=user_email)
     
     user_cart = Cart.objects.get(user = user_details)
     cart_product = CartProduct.objects.filter(cart = user_cart)
+    
+    cart_id = request.session.get('cart_product')
+    if cart_id:
+        cart_products = CartProduct.objects.get(id = cart_id)
+        order = Order.objects.create(user = user_details, delivery_address = profile, status = 'PENDING', grand_total = cart_products.total_amount )
+        cart_products.delete()
+        id= order.id
+        return redirect(invoice,id)
     if user_cart.grand_total > 0:
         total_offer = 0
         order = Order.objects.create(user = user_details, delivery_address = profile, status = 'PENDING', grand_total = user_cart.grand_total )
@@ -341,18 +386,31 @@ def checkout(request,check, id):
 
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
 def purchase(request,check,id):
-    cart = Cart.objects.get(user = id)
-    if cart.grand_total>0:
-    
-        if request.method == "POST":
-            return redirect(checkout,check,id)
-        cartproduct = CartProduct.objects.filter(cart=cart)
-        total_offer = 0
-        for pros in cartproduct:
-            total_offer = pros.product.offer*pros.quantity+total_offer
-        return render(request,'purchase.html',{'check':check, 'id':id,'cart': cart, 'offer':total_offer} )
-    else:
-        return redirect(first)
+    try:
+            print('now')
+            cart_product = request.session.get('cart_product')
+            print(cart_product)
+            
+            cart = CartProduct.objects.get(id=cart_product)
+            if request.method == "POST":
+                return redirect(checkout,check,id)
+            return render(request,'purchase.html',{'check':check, 'id':id,'carts': cart, 'offer':cart.product.offer} )
+    except:
+        cart = Cart.objects.get(user = id)
+        if cart.grand_total>0:
+        
+            if request.method == "POST":
+                return redirect(checkout,check,id)
+            cartproduct = CartProduct.objects.filter(cart=cart)
+            total_offer = 0
+            for pros in cartproduct:
+                total_offer = pros.product.offer*pros.quantity+total_offer
+            
+            
+                print('nowss')
+                return render(request,'purchase.html',{'check':check, 'id':id,'cart': cart, 'offer':total_offer} )
+        else:
+            return redirect(first)
 
  
 def add_quantity(request, us, op, pro):
@@ -509,3 +567,10 @@ def invoice_pdf(request,id):
         response.write(output.read())
     
     return response
+
+
+def buy_now(request,id):
+    product = Products.objects.get(id=id)
+    cart_product = CartProduct.objects.create(product=product,quantity = 1,total_amount = product.price - product.offer)
+    request.session['cart_product'] = cart_product.id
+    return redirect(check_out)

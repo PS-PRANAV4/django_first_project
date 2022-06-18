@@ -23,19 +23,58 @@
                 <tr>
                     <th scope="row"><b>#{{order.id}}</b></th>
                     <td>
+                      {% if order.status == "CANCEL" %}
                         <div class="tm-status-circle moving">
+                          
+                          </div>{{order.status}}
+                          {% elif order.status == "DELIVERED" %}
+                          <div class="tm-status-circle moving">
+                          
+                          </div>{{order.status}}
+                          {% else %}
+                          <div class="tm-status-circle moving"></div>
                         </div><a href="/admins/change_order_status/{{order.id}}">{{order.status}}</a>
+                        {% endif %}
                     </td>
                     <td><b>{{order.user.username}}</b></td>
                     <td><b>{{order.delivery_address.address}}</b></td>
-                    <td><b><a href="/admins/change_order_status/{{order.id}}/cancel">
+
+                    <td><b> {% if order.status == "PENDING" %}
+                      <a href="/admins/change_order_status/{{order.id}}/cancel">
                         CANCEL</a></b></td>
+                        {% elif order.status == "DELIVERED" %}
+                        <span>CAN'T CANCEL DELIVERED ORDER</span>
+                        {% else %}
+                        <span>ORDER CANCEL BY USER</span>
+                        {% endif %}
                     <td>{{order.order_date}}</td>
                     <td>08:00, 18 NOV 2018</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+       
     </div>
+      <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        {% if orders.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="/admins/orders?pages={{orders.previous_page_number}}" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        {% endif %}
+        
+        <li class="page-item"><a class="page-link" href="">{{orders.number}}</a></li>
+     {% if orders.has_next %}   
+        <li class="page-item">
+          <a class="page-link" href="/admins/orders?pages={{orders.next_page_number}}" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
+  
 </div>
 {% endblock %}
