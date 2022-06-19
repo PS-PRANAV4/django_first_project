@@ -369,3 +369,6 @@ def monthly_pdf(request):
         response.write(output.read())
     
     return response
+
+
+

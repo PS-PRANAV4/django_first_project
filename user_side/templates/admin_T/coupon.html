@@ -1,0 +1,35 @@
+{% extends 'admin_T/main.html' %}
+
+
+        {% block content %}
+        {% load static %}
+    
+    <form action="/admins/generate" method="POST">
+        {% csrf_token %}
+        <label for="pre">ADD COUPON</label>
+        <input type="text" name="amount" id="pre">
+        <button type="submit" >submit</button>
+    </form>
+ <a href="admins/generate">GENERATE COUPON</a>
+
+ <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">COUPON NAME</th>
+        <th scope="col">COUPON AMOUNT</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+        {% for coupon in coupons %}
+      <tr>
+        <th scope="row">{{forlopp.counter}}</th>
+        <td>{{coupon.number}}</td>
+        <td>{{coupon.coupon_amount}}</td>
+       
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

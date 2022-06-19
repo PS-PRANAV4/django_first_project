@@ -30,6 +30,7 @@ from weasyprint import HTML
 
 import tempfile
 from django.db.models import Sum
+from wallet.models import Wallet
 
 # Create your views here.
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
@@ -78,7 +79,7 @@ def signup(request):
         email = request.POST.get("email")
         pass1 = request.POST.get("pass1")
         pass2  = request.POST.get("pass2")
-
+        referal = request.POST.get("referal")
         print(len(username))
         if pass1 != pass2:
             messages.error(request,"password didn't match" )
@@ -153,7 +154,12 @@ def signup(request):
         
 
         my_user =Accounts.objects.create_user(first_name,last_name,username,email,pass1)
-        
+        wallet = Wallet.objects.create(user = my_user)
+        if len(referal)>0:
+            user = Accounts.objects.get(referal_code = referal)
+            wallet = Wallet.objects.get(user=user)
+            wallet.amount = wallet.amount+50
+            wallet.save()
         if number:
             my_user.phone_number = number
             request.session['pk'] = my_user.pk

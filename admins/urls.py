@@ -27,6 +27,8 @@ urlpatterns = [
     path('daily-pdf',views.daily_pdf),
     path('monthly-pdf',views.monthly_pdf),
     path('weekly-pdf',views.weekly_pdf),
+    
+
 
     
     

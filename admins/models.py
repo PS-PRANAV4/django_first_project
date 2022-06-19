@@ -1,6 +1,7 @@
 import email
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+import uuid
 
 # Create your models here.
 
@@ -56,6 +57,7 @@ class Accounts(AbstractBaseUser):
     is_staff = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
     is_superadmin = models.BooleanField(default=False)
+    referal_code = models.UUIDField(default=uuid.uuid4)
 
 
     USERNAME_FIELD = 'email'

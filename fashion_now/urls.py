@@ -27,6 +27,7 @@ urlpatterns = [
     path('admins/',include('admins.urls')),
     path('user_profile/',include('profiles.urls')),
     path('',include('razorpayment.urls')),
+    path('admins/',include('coupon.urls')),
 
     
 ]+static(MEDIA_URL,document_root = MEDIA_ROOT)

@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 from datetime import datetime
 from email.policy import default
 from django.db import models
@@ -6,6 +7,8 @@ from admins.models import Accounts
 from profiles.models import Profile
 import uuid
 # Create your models here.
+
+tran_type = (("PAYPAL","PAYPAL"),("RAZORPAY","RAZORPAY"),("COD","COD"))
 
 delivery_choices = (("PENDING", "PENDING"),("ACCEPTED", "ACCEPTED"), ("DELIVERED","DELIVERED"),("CANCELED","CANCELED"),("FAILED","FAILED"))
 
@@ -32,7 +35,7 @@ class CartProduct(models.Model):
 
 
 class Order(models.Model):
-    user = models.ForeignKey(Accounts, on_delete=models.CASCADE, blank=True)
+    user = models.ForeignKey(Accounts, on_delete=models.SET_NULL, blank=True, null=True)
     delivery_address = models.ForeignKey(Profile, on_delete=models.CASCADE)
     status = models.CharField(choices= delivery_choices, default="PENDING", max_length=20)
     grand_total = models.IntegerField(blank =True)
@@ -40,6 +43,7 @@ class Order(models.Model):
     delivery_date = models.DateTimeField(blank=True, null=True)
     order_id = models.UUIDField(editable=False,default=uuid.uuid4,blank=True,null=True)
     transaction_id = models.CharField(max_length=100,blank=True,null=True)
+    transaction_type = models.CharField(choices=tran_type,null=True,blank=True, max_length=20)
 
     def __str__(self):
         return self.user.username

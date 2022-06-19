@@ -21,6 +21,7 @@ class Category(models.Model):
     image = models.ImageField(upload_to = 'photos/category',blank = True)
     description = models.TextField()
     main_cate = models.ForeignKey(MainCategory,blank=True,null=True, on_delete=models.CASCADE, related_name='main_cate')
+    cate_offer = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         return self.namer
