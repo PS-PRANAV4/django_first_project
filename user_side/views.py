@@ -1,4 +1,5 @@
 
+from distutils.log import error
 import email
 import json
 from turtle import home
@@ -10,6 +11,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required
+
 from requests import request
 from admins.models import Accounts
 from admins.views import product
@@ -23,6 +25,7 @@ from django.http import JsonResponse
 import datetime
 from django.template.loader import render_to_string
 import os
+from coupon.models import Coupon
 
 GTK_FOLDER = r'C:\Program Files\GTK3-Runtime Win64\bin'
 os.environ['PATH'] = GTK_FOLDER + os.pathsep + os.environ.get('PATH', '')
@@ -390,17 +393,18 @@ def checkout(request,check, id):
         return redirect(first)
 
 
-@cache_control(no_cache = True, must_revalidate = True, no_store = True)
+
 def purchase(request,check,id):
     try:
-            print('now')
-            cart_product = request.session.get('cart_product')
-            print(cart_product)
+        print('now')
+        cart_product = request.session.get('cart_product')
+        print(cart_product)
+        
             
-            cart = CartProduct.objects.get(id=cart_product)
-            if request.method == "POST":
-                return redirect(checkout,check,id)
-            return render(request,'purchase.html',{'check':check, 'id':id,'carts': cart, 'offer':cart.product.offer} )
+        cart = CartProduct.objects.get(id=cart_product)
+        if request.method == "POST":
+            return redirect(checkout,check,id)
+        return render(request,'purchase.html',{'check':check, 'id':id,'carts': cart, 'offer':cart.product.offer} )
     except:
         cart = Cart.objects.get(user = id)
         if cart.grand_total>0:
@@ -411,10 +415,11 @@ def purchase(request,check,id):
             total_offer = 0
             for pros in cartproduct:
                 total_offer = pros.product.offer*pros.quantity+total_offer
-            
+            if cart.coupon_offer > 0:
+                total_offer = total_offer+cart.coupon_offer
             
                 print('nowss')
-                return render(request,'purchase.html',{'check':check, 'id':id,'cart': cart, 'offer':total_offer} )
+            return render(request,'purchase.html',{'check':check, 'id':id,'cart': cart, 'offer':total_offer} )
         else:
             return redirect(first)
 
@@ -580,3 +585,35 @@ def buy_now(request,id):
     cart_product = CartProduct.objects.create(product=product,quantity = 1,total_amount = product.price - product.offer)
     request.session['cart_product'] = cart_product.id
     return redirect(check_out)
+
+
+def add_coupon(request):
+    body = json.loads(request.body)
+    check = body['coupon']
+    print(check)
+    try:
+        print('here')
+        coupon = Coupon.objects.get(number = check)
+        print('here')
+        val = "PASS"
+        print('here')
+    except:
+        val = "FAILED"
+    
+
+    if val == "PASS":
+        amount = coupon.coupon_amount
+        user = request.user
+        cart = Cart.objects.get(user=user)
+        cartproduct = CartProduct.objects.filter(cart=cart)
+        total_offer = 0
+        for pros in cartproduct:
+            total_offer = pros.product.offer*pros.quantity+total_offer
+        cart.coupon_offer = amount
+        cart.save()
+        data = {'check': cart.coupon_offer}
+        return JsonResponse(data)
+    else:
+        print('gone wrong')
+
+        

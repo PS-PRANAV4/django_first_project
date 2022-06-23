@@ -36,12 +36,16 @@
     <section class="checkout spad">
         <div class="container">
             <div class="checkout__form">
-                <form action="/check/{{user.id}}" method="POST">
-                    {% csrf_token %}
+                
                     <div class="row">
                         <div class="col-lg-8 col-md-6">
-                            <h6 class="coupon__code"><span class="icon_tag_alt"></span> Have a coupon? <a href="#">Click
-                            here</a> to enter your code</h6>
+                            <div class="d-flex flex-column">
+                            <p> have a copon code </p>
+                            <input type="text" style="height:50%; width: 50%;   background-color: aqua;" name="coup" id="coup" >
+                            <button type="submit" class="btn btn-success mt-1" id="coupon" style="height: 10% ; width: 50%;" >SUBMIT</button>
+                        </div>
+                            <form action="/check/{{user.id}}" method="POST">
+                                {% csrf_token %}
                             <h6 class="checkout__title">Billing Details</h6>
                             <input name="check" value="0" type="radio">
                             <div class="row">
@@ -123,7 +127,8 @@
                                     <li>Total <span>₹{{cart.grand_total}}</span></li>
                                     <li>product offers <span>₹{{offer}}</span></li>
                                     <hr style="color: blue;" >
-                                    <li>GRAND TOTAL<span>₹{{cart.grand_total|sub:offer}}</span></li>
+                                    <li>GRAND TOTAL<span id="va" >₹{{cart.grand_total|sub:offer}}</span></li>
+                                    
                                 </ul>
                                 {% for prof in profile %}
                                 <div class="checkout__input__checkbox">
@@ -139,6 +144,7 @@
                         </div>
                     </div>
                 </form>
+                
             </div>
         </div>
     </section>
@@ -221,6 +227,68 @@
         </div>
     </div>
     <!-- Search End -->
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        var csrftoken = getCookie('csrftoken');
+        element = document.getElementById('coupon')
+        element.addEventListener("click", coupons);
+        just = "{{cart.grand_total|sub:offer}}"
+        justin = parseInt(just)
+        function coupons(e)
+        {
+            e.preventDefault();
+            a= document.getElementById('coup').value
+            console.log(a)
+            console.log('hello')
+            sendData();
+            console.log('hello')
+            function sendData(){
+                console.log('hello')
+                fetch('/add_coupon',{
+                    method : "POST",
+                    headers : {
+                        "Content-type" : "application/jason",
+                        "X-CSRFToken": csrftoken,
+                    },
+                    body:JSON.stringify({
+                        
+                        coupon: a,
+                        
+                    }),
+                })
+                .then(response => response.json())
+                .then((data) => { 
+                    document.getElementById("va").innerHTML = justin-data.check;
+                    
+            });
+        }
+
+            // Replace the above to show a success message within this page, e.g.
+            // const element = document.getElementById('paypal-button-container');
+            // element.innerHTML = '';
+            // element.innerHTML = '<h3>Thank you for your payment!</h3>';
+            // Or go to another URL:  actions.redirect('thank_you.html');
+       
+    }
+        
+
+
+
+    </script>
 
     <!-- Js Plugins -->
     <script src="{% static 'product/js/jquery-3.3.1.min.js' %}"></script>

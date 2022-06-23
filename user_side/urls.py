@@ -26,6 +26,7 @@ urlpatterns = [
     path('invoice/pdf/<int:id>',views.invoice_pdf),
     path('buynow/<int:id>',views.buy_now),
     path('check',views.check_out ),
+    path('add_coupon',views.add_coupon ),
     
     
 ]

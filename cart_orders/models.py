@@ -15,6 +15,7 @@ delivery_choices = (("PENDING", "PENDING"),("ACCEPTED", "ACCEPTED"), ("DELIVERED
 class Cart(models.Model):
     user = models.OneToOneField(Accounts, on_delete=models.CASCADE, blank=True)
     grand_total = models.IntegerField(blank=True, null=True)
+    coupon_offer = models.IntegerField(default=0)
     def __str__(self):
         return self.user.username
     

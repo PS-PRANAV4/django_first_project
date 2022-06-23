@@ -2,7 +2,7 @@
 from email.mime import image
 from operator import mod
 from pickle import TRUE
-from tkinter import CASCADE
+
 from unicodedata import name
 from unittest.util import _MAX_LENGTH
 from django.db import models
@@ -28,7 +28,7 @@ class Category(models.Model):
 
 
 class Products(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100,unique=True)
     details = models.TextField()
     price = models.IntegerField()
     offer = models.IntegerField(default=0)

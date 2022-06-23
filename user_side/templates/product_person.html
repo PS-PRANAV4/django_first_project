@@ -134,7 +134,7 @@
                         <div class="product__details__text">
                             <h4> {{pro.name}} </h4>
                            {% if pro.offer %}
-                            <h3> ₹{{pro.price}} <span> ₹{{pro.price|sub:pro.offer}} </span></h3>
+                            <h3> ₹{{pro.price|sub:pro.offer}} <span> ₹{{pro.price}} </span></h3>
                             {% else %}
                             <h3>  ₹{{pro.price}} </h3>
                             {% endif %}

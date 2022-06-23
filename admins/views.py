@@ -4,6 +4,7 @@ from multiprocessing import context
 from pickle import TRUE
 from tokenize import Number
 from unicodedata import name
+from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import render,redirect
 from django.contrib.auth import authenticate,login,logout
@@ -118,6 +119,9 @@ def add_product(request):
                 product = Products.objects.create(name = name, details = details, price = price, stock = stock, category_id_id = categ, offer = 0)
             except ValueError:
                     messages.error(request,'please check the values u inserted')
+                    return redirect(add_product)
+            except IntegrityError:
+                    messages.error(request,"name is duplicate can't insert")
                     return redirect(add_product)
             
             product.image_product = request.FILES['image']
