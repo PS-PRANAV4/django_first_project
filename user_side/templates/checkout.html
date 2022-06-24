@@ -20,9 +20,9 @@
                     <div class="breadcrumb__text">
                         <h4>Check Out</h4>
                         <div class="breadcrumb__links">
-                            <a href="./index.html">Home</a>
-                            <a href="./shop.html">Shop</a>
-                            <a href="./shop.html">Cart</a>
+                            <a href="/">Home</a>
+                            <a href="/">Shop</a>
+                            <a href="/cart/{{user.id}}">Cart</a>
                             <span>Check Out</span>
                         </div>
                     </div>
@@ -47,7 +47,7 @@
                             <form action="/check/{{user.id}}" method="POST">
                                 {% csrf_token %}
                             <h6 class="checkout__title">Billing Details</h6>
-                            <input name="check" value="0" type="radio">
+                            <input name="ad" value="0" type="radio">
                             <div class="row">
                                 
                                 <div class="col-lg-6">
@@ -134,12 +134,13 @@
                                 <div class="checkout__input__checkbox">
                                     <label for="acc-or{{forloop.counter}}">
                                         {{prof.address}}
-                                        <input type="radio" id="acc-or{{forloop.counter}}" value="{{prof.id}}" name="check">
+                                        <input type="radio" id="acc-or{{forloop.counter}}" value="{{prof.id}}" name="ad">
                                         <span class="checkmark"></span>
                                     </label>
                                 </div>
                                 {% endfor %}
-                                <button type="submit" class="site-btn">PLACE ORDER</button>
+                                <div id="message"></div>
+                                <button type="submit" id="place" class="site-btn">PLACE ORDER</button>
                             </div>
                         </div>
                     </div>
@@ -227,6 +228,37 @@
         </div>
     </div>
     <!-- Search End -->
+    <!-- form validation below -->
+    <script>
+        element = document.getElementById('place')
+      
+        element.addEventListener("click", valida);
+        function valida(e)
+        {
+            console.log('nice')
+            
+            var languages = document.getElementsByName("ad");
+            for (var lang of languages) {
+                console.log(lang.value);
+                if(lang.checked)
+                {
+                    console.log('nicee')
+            e.preventDefault();
+            mssg = document.getElementById('message')
+              mssg.innerHTML = "name can't be empty";
+        }
+            }
+        
+     
+    }
+
+
+
+    </script>
+
+
+
+
     <script>
         function getCookie(name) {
             let cookieValue = null;

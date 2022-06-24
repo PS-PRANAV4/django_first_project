@@ -30,6 +30,7 @@ from weasyprint import HTML
 
 import tempfile
 from django.db.models import Sum
+from.decorators import admin_Login
 
  
 
@@ -70,14 +71,14 @@ def signin(request):
         return redirect(main)
 
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
-@login_required(login_url=signin)
+@admin_Login(signin)
 def main(request):
     
     return render(request, 'admin_T/first.html')   
 
 
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
-@login_required(login_url=signin)
+@admin_Login(signin)
 def account(request):
     if request.method == 'POST':
         search = request.POST.get('search')
@@ -106,7 +107,7 @@ def account(request):
         look = 1
         return render(request,'admin_T/accounts.html', {'full_user':users,'search':look})
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
-@login_required(login_url=signin)
+@admin_Login(signin)
 def add_product(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -133,7 +134,7 @@ def add_product(request):
     cate =Category.objects.all()
     return render(request, 'admin_T/add-product.html',{'cate':cate})
 
-@login_required(login_url=signin)
+@admin_Login(signin)
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
 def edit_product(request,id):
     if request.method == 'POST':
@@ -179,8 +180,7 @@ def edit_product(request,id):
 
     return render(request, 'admin_T/edit-product.html', {'product': product, 'cate':cate})
 
-@cache_control(no_cache = True, must_revalidate = True, no_store = True)
-@login_required(login_url=signin)
+@admin_Login(signin)
 def product(request):
     pro = Products.objects.all().order_by('id')
     cats = Category.objects.all()
@@ -201,7 +201,7 @@ def product(request):
 #     return render(request, 'admin_T/add_users.html')
 
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
-@login_required(login_url=signin)
+@admin_Login(signin)
 def block(request,id):
     user_d = Accounts.objects.get(id=id)
     if user_d.is_active:
@@ -214,19 +214,19 @@ def block(request,id):
     return redirect(account)
     
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
-@login_required(login_url=signin)
+@admin_Login(signin)
 def signout(request):
     logout(request)
     return redirect(signin)
 
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
-@login_required(login_url=signin)
+@admin_Login(signin)
 def delete_product(request,id):
     Products.objects.get(id=id).delete()
     return redirect(product)
 
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
-@login_required(login_url=signin)
+@admin_Login(signin)
 def add_category(request):
     if request.method == 'POST':
         category_name = request.POST.get('name')
@@ -241,7 +241,7 @@ def add_category(request):
 
 
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
-@login_required(login_url=signin)
+@admin_Login(signin)
 def delete_category(request, id):
     try:
         Category.objects.get(id=id).delete()
@@ -249,7 +249,7 @@ def delete_category(request, id):
         messages.error( request, "can't delete the category")
     return redirect(product)
 
-
+@admin_Login(signin)
 def change(request,id,status = None):
     order = Order.objects.get(id=id)
 
@@ -263,7 +263,7 @@ def change(request,id,status = None):
     order.save()
     return redirect(orders_list)
 
-
+@admin_Login(signin)
 def orders_list(request):
     orders = Order.objects.all().order_by('-id')
     order = Paginator(orders,7)
@@ -274,6 +274,7 @@ def orders_list(request):
         order_page = order.page(1) 
     return render(request, 'admin_T/orders.html',{'orders':order_page} )
 
+@admin_Login(signin)
 def daily_report(request):
     if request.method == "POST":
         frm = request.POST.get('from')
@@ -304,17 +305,18 @@ def daily_report(request):
         report = Order.objects.filter(order_date__gte=datetime.date(2022, 6, 1), order_date__lte=datetime.date(2022, 6, 30)).annotate(day=TruncDate('order_date')).values('day').annotate(count=Count('id')).annotate(sum=Sum('grand_total')).order_by('-day')
     return render(request,'admin_T/daily_report.html',{'report': report})
 
-
+@admin_Login(signin)
 def monthly_report(request):
     report = Order.objects.filter(status='DELIVERED').annotate(month=TruncMonth('order_date')).values('month').annotate(count=Count('id')).annotate(sum=Sum('grand_total'))
     return render(request,'admin_T/monthly_report.html',{'report': report})
 
-
+@admin_Login(signin)
 def weekly_report(request):
     report = Order.objects.filter(status='DELIVERED').annotate(weekly=TruncWeek('order_date')).values('weekly').annotate(count=Count('id')).annotate(sum=Sum('grand_total'))
     
     return render(request,'admin_T/weekly_report.html',{'report': report})
 
+@admin_Login(signin)
 def daily_pdf(request):
     report = Order.objects.filter(status='DELIVERED').annotate(day=TruncDate('order_date')).values('day').annotate(count=Count('id')).annotate(sum=Sum('grand_total'))
     
@@ -335,6 +337,7 @@ def daily_pdf(request):
     
     return response
 
+@admin_Login(signin)
 def weekly_pdf(request):
     report = Order.objects.filter(status='DELIVERED').annotate(day=TruncWeek('order_date')).values('day').annotate(count=Count('id')).annotate(sum=Sum('grand_total'))
     response = HttpResponse(content_type = 'application/pdf')
@@ -354,7 +357,7 @@ def weekly_pdf(request):
     
     return response
 
-
+@admin_Login(signin)
 def monthly_pdf(request):
     report = Order.objects.filter(status='DELIVERED').annotate(day=TruncMonth('order_date')).values('day').annotate(count=Count('id')).annotate(sum=Sum('grand_total'))
     response = HttpResponse(content_type = 'application/pdf')

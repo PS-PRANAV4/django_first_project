@@ -145,3 +145,4 @@ MEDIA_ROOT = BASE_DIR/'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 RAZORPAY_KEY_ID = 'rzp_test_4f54WeJvRPZaGn'
 RAZORPAY_KEY_SECRET = 'rrFYP9X2lG1lj47iUVhCc21P'
+# GIT REPO = https://github.com/PS-PRANAV4/django_first_project.git
