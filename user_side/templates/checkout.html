@@ -41,13 +41,13 @@
                         <div class="col-lg-8 col-md-6">
                             <div class="d-flex flex-column">
                             <p> have a copon code </p>
-                            <input type="text" style="height:50%; width: 50%;   background-color: aqua;" name="coup" id="coup" >
+                            <input type="text" style="height:50%; width: 50%;   background-color: aqua;" name="coup" id="coup"  >
                             <button type="submit" class="btn btn-success mt-1" id="coupon" style="height: 10% ; width: 50%;" >SUBMIT</button>
                         </div>
                             <form action="/check/{{user.id}}" method="POST">
                                 {% csrf_token %}
                             <h6 class="checkout__title">Billing Details</h6>
-                            <input name="ad" value="0" type="radio">
+                            <input name="check" value="0" id="non" type="radio" checked>
                             <div class="row">
                                 
                                 <div class="col-lg-6">
@@ -55,48 +55,48 @@
                                     <div class="checkout__input">
                                         
                                         <p>Fist Name<span>*</span></p>
-                                        <input type="text" name="first_name">
+                                        <input type="text" id="name" name="first_name">
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="checkout__input">
                                         <p>Last Name<span>*</span></p>
-                                        <input type="text" name="last_name">
+                                        <input type="text" id="lname" name="last_name">
                                     </div>
                                 </div>
                             </div>
                             <div class="checkout__input">
                                 <p>Country<span>*</span></p>
-                                <input type="text" name="country">
+                                <input type="text" id="country" name="country">
                             </div>
                             <div class="checkout__input">
                                 <p>Address<span>*</span></p>
-                                <input type="text" name="address1" placeholder="Street Address" class="checkout__input__add">
-                                <input type="text" name="address2" placeholder="Apartment, suite, unite ect (optinal)">
+                                <input type="text" name="address1" id="address1" placeholder="Street Address" class="checkout__input__add">
+                                <input type="text" name="address2" id="address2" placeholder="Apartment, suite, unite ect (optinal)">
                             </div>
                             <div class="checkout__input">
                                 <p>Town/City<span>*</span></p>
-                                <input type="text" name="town">
+                                <input type="text" id="town" name="town">
                             </div>
                             <div class="checkout__input">
-                                <p>Country/State<span>*</span></p>
-                                <input type="text" name="state">
+                                <p>State<span>*</span></p>
+                                <input type="text" id="city" name="state">
                             </div>
                             <div class="checkout__input">
                                 <p>Postcode / ZIP<span>*</span></p>
-                                <input type="text" name="pin">
+                                <input type="text" name="pin" id="pin">
                             </div>
                             <div class="row">
                                 <div class="col-lg-6">
                                     <div class="checkout__input">
                                         <p>Phone<span>*</span></p>
-                                        <input type="text" name="phone">
+                                        <input type="text" id="phone" name="phone">
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="checkout__input">
                                         <p>Email<span>*</span></p>
-                                        <input type="text" name="email">
+                                        <input type="text" id="email" name="email">
                                     </div>
                                 </div>
                             </div>
@@ -134,13 +134,13 @@
                                 <div class="checkout__input__checkbox">
                                     <label for="acc-or{{forloop.counter}}">
                                         {{prof.address}}
-                                        <input type="radio" id="acc-or{{forloop.counter}}" value="{{prof.id}}" name="ad">
+                                        <input type="radio" id="acc-or{{forloop.counter}}" value="{{prof.id}}" name="check">
                                         <span class="checkmark"></span>
                                     </label>
                                 </div>
                                 {% endfor %}
-                                <div id="message"></div>
-                                <button type="submit" id="place" class="site-btn">PLACE ORDER</button>
+                                <div id="message" style="text-transform: uppercase;"   class="text-danger"></div>
+                                <button type="submit"  id="place" class="site-btn">PLACE ORDER</button>
                             </div>
                         </div>
                     </div>
@@ -234,21 +234,91 @@
       
         element.addEventListener("click", valida);
         function valida(e)
-        {
-            console.log('nice')
+        {   
             
-            var languages = document.getElementsByName("ad");
-            for (var lang of languages) {
-                console.log(lang.value);
-                if(lang.checked)
-                {
-                    console.log('nicee')
-            e.preventDefault();
-            mssg = document.getElementById('message')
-              mssg.innerHTML = "name can't be empty";
-        }
-            }
-        
+            
+              if(  document.getElementById("non").checked == true)
+              {
+                    name = document.getElementById("name").value
+                    lname = document.getElementById("lname").value
+                    country = document.getElementById("country").value
+                    address1 = document.getElementById("address1").value
+                    address2 = document.getElementById("address2").value
+                    town = document.getElementById("town").value
+                    city = document.getElementById("city").value
+                    pin = document.getElementById("pin").value
+                    phone = document.getElementById("phone").value
+                    email = document.getElementById("email").value
+
+                    if(name == "")
+                    {
+                        mssg = document.getElementById('message')
+                        mssg.innerHTML = "name can't be empty";
+                        e.preventDefault();
+
+                    }
+                    else if(lname == "")
+                    {
+                        mssg = document.getElementById('message')
+                        mssg.innerHTML = "last name can't be empty";
+                        e.preventDefault();
+
+                    }
+                   
+                    else if(country == "")
+                    {
+                        mssg = document.getElementById('message')
+                        mssg.innerHTML = "country can't be empty";
+                        e.preventDefault();
+
+                    }
+                    else if(address1 == "")
+                    {
+                        mssg = document.getElementById('message')
+                        mssg.innerHTML = "address can't be empty";
+                        e.preventDefault();
+
+                    }
+                  
+                   
+                    else if(town == "")
+                    {
+                        mssg = document.getElementById('message')
+                        mssg.innerHTML = "town can't be empty";
+                        e.preventDefault();
+
+                    }
+                    else if(city == "")
+                    {
+                        mssg = document.getElementById('message')
+                        mssg.innerHTML = "state can't be empty";
+                        e.preventDefault();
+
+                    }
+                    else if(pin == "")
+                    {
+                        mssg = document.getElementById('message')
+                        mssg.innerHTML = "pin can't be empty";
+                        e.preventDefault();
+
+                    }
+                    else if(phone == "")
+                    {
+                        mssg = document.getElementById('message')
+                        mssg.innerHTML = "phone can't be empty";
+                        e.preventDefault();
+
+                    }
+                    else if(email == "")
+                    {
+                        mssg = document.getElementById('message')
+                        mssg.innerHTML = "email can't be empty";
+                        e.preventDefault();
+
+                    }
+              }
+              
+              
      
     }
 

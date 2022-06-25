@@ -11,7 +11,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required
-
+from .decorators import guest_user
 from requests import request
 from admins.models import Accounts
 from admins.views import product
@@ -53,6 +53,19 @@ def signin(request):
             user = authenticate(username=username, password=pass5)
             print('authenticated')
             if user is not None:
+                cart_id = request.session.get('cart_id')
+                single_cart = Cart.objects.get(id=cart_id)
+                cart = Cart.objects.get(user=user)
+                pro = CartProduct.objects.filter(cart=cart)
+                carts = CartProduct.objects.filter(cart=single_cart)
+                grand_total = 0
+                for ca in carts:
+                    CartProduct.objects.create(cart=cart,product = ca.product,quantity = ca.quantity, total_amount = ca.total_amount)
+                    grand_total = grand_total+ca.total_amount
+                cart.grand_total = cart.grand_total + grand_total
+                cart.save()
+                single_cart.delete()
+
                 login(request,user)
                 return redirect(first)
                 # request.session['pk'] = user.pk
@@ -319,8 +332,39 @@ def check_out(request,id = 0):
             total_offer = total_offer + pros.product.offer*pros.quantity
         print('her')
         return render(request,'checkout.html',{'profile': profile,"cart": cart, "cartproduc": cartproducts, 'offer':total_offer })
+def guest_show(request,cart_id,total_offer):
+    single_cart = Cart.objects.get(id=cart_id)
+    full_cart = CartProduct.objects.filter(cart = single_cart)
+    return render(request,'shopping-cart.html',{'products':full_cart,'single':single_cart,'offer':total_offer})
+    pass
 
 def cart(request, us):
+    print( 'hello')
+    if us == 0:
+        pro = request.session.get('pro')
+        pros = Products.objects.get(id=pro)
+        cart_id = request.session.get('cart_id')
+        if cart_id == None:
+            carts = Cart.objects.create(grand_total = pros.price,coupon_offer = 0)
+            cart_id = carts.id
+            request.session['cart_id'] = cart_id
+        single_cart = Cart.objects.get(id=cart_id)
+        print(pros.price)
+        pro = CartProduct.objects.create(product=pros,quantity=1, total_amount = pros.price,cart = single_cart)
+        
+        full_cart = CartProduct.objects.filter(cart = single_cart)
+        
+        total_offer = 0
+        total_amount = 0
+        for product in full_cart:
+            total_amount = total_amount+product.total_amount
+            total_offer = total_offer+product.product.offer*product.quantity
+        single_cart.grand_total = total_amount
+        single_cart.save()
+        return redirect(guest_show,cart_id,total_offer)
+        return render(request,'shopping-cart.html',{'products':full_cart,'single':single_cart,'offer':total_offer})
+        
+       
     myuser = Accounts.objects.get(id=us)
     single_cart = Cart.objects.get(user=myuser)
     full_cart = CartProduct.objects.filter(cart = single_cart)
@@ -330,6 +374,17 @@ def cart(request, us):
     
     return render(request,'shopping-cart.html',{'products':full_cart,'single':single_cart,'offer':total_offer})
 
+def guest(request,id):
+    
+    request.session['pro'] = id
+    
+    
+    us= 0
+    
+    return redirect(cart,us)
+
+
+@guest_user(guest)
 def addcart(request, id, us):
     product = Products.objects.get(id=id)
     myuser = Accounts.objects.get(id=us)
@@ -382,6 +437,12 @@ def checkout(request,check, id):
         for cart in cart_product:
             total_offer = total_offer + cart.product.offer*cart.quantity
             ProductOrders.objects.create(product = cart.product, quantity = cart.quantity, total_amount = cart.total_amount, main_order = order)
+            
+        if user_cart.coupon_offer > 0:
+            total_offer = total_offer+user_cart.coupon_offer
+            user_cart.coupon_offer = 0
+            user_cart.save()            
+                
         order.grand_total = order.grand_total - total_offer
         order.save()
         cart_product.delete()
@@ -616,4 +677,3 @@ def add_coupon(request):
     else:
         print('gone wrong')
 
-        

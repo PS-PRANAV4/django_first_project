@@ -13,7 +13,7 @@ tran_type = (("PAYPAL","PAYPAL"),("RAZORPAY","RAZORPAY"),("COD","COD"))
 delivery_choices = (("PENDING", "PENDING"),("ACCEPTED", "ACCEPTED"), ("DELIVERED","DELIVERED"),("CANCELED","CANCELED"),("FAILED","FAILED"))
 
 class Cart(models.Model):
-    user = models.OneToOneField(Accounts, on_delete=models.CASCADE, blank=True)
+    user = models.OneToOneField(Accounts, on_delete=models.CASCADE, blank=True, null=True)
     grand_total = models.IntegerField(blank=True, null=True)
     coupon_offer = models.IntegerField(default=0)
     def __str__(self):

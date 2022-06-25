@@ -27,6 +27,11 @@ urlpatterns = [
     path('buynow/<int:id>',views.buy_now),
     path('check',views.check_out ),
     path('add_coupon',views.add_coupon ),
+    path('guest',views.guest ),
+    path('addcart/<int:id>/None',views.guest ),
+    path('guest_show/<int:cart_id>/<int:total_offer>',views.guest_show),
+
+    
     
     
 ]

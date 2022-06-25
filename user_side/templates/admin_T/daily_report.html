@@ -1,5 +1,5 @@
 {% extends 'admin_T/main.html' %}
-
+{% load mathfilters %}
 
         {% block content %}
         {% load static %}
@@ -30,6 +30,7 @@
                     <th scope="col">DATE</th>
                     <th scope="col">TOTAL NO OF ORDERS</th>
                     <th scope="col">TOTAL AMOUNT OF SALE</th>
+                    <th scope="col">AVG</th>
                     
                 </tr>
             </thead>
@@ -42,7 +43,7 @@
                     <td><b>{{reports.count}}</b></td>
 
                     <td>{{reports.sum}}</td>
-                    
+                    <td>{{reports.sum|div:report.count}}</td>
                 </tr>
    {% endfor %}             
             </tbody>

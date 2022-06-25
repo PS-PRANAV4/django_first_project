@@ -3,7 +3,7 @@ from email.policy import default
 from multiprocessing import context
 from pickle import TRUE
 from tokenize import Number
-from unicodedata import name
+from unicodedata import category, name
 from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import render,redirect
@@ -14,12 +14,12 @@ from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required
 from requests import delete
 from .models import Accounts,Manager
-from product.models import Category,Products
+from product.models import Category,Products,MainCategory
 from cart_orders.models import Cart,CartProduct,Order,ProductOrders
 import os
 from django.core.paginator import Paginator
 from django.db.models import Count,Avg,Sum
-from django.db.models.functions import TruncMonth,TruncDate,TruncWeek
+from django.db.models.functions import TruncMonth,TruncDate,TruncWeek,TruncDay
 import datetime
 from django.template.loader import render_to_string
 import os
@@ -132,7 +132,8 @@ def add_product(request):
             return redirect(add_product)
             
     cate =Category.objects.all()
-    return render(request, 'admin_T/add-product.html',{'cate':cate})
+    main = MainCategory.objects.all()
+    return render(request, 'admin_T/add-product.html',{'cate':cate,'main':main})
 
 @admin_Login(signin)
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
@@ -300,9 +301,9 @@ def daily_report(request):
     except:
         pass
     try:
-        report = Order.objects.filter(status= "DELIVERED", order_date__gte=datetime.date(res[0],res[1],res[2]), order_date__lte=datetime.date(pos[0],pos[1],pos[2])).annotate(day=TruncDate('order_date')).values('day').annotate(count=Count('id')).annotate(sum=Sum('grand_total')).order_by('-day') 
+        report = Order.objects.filter(status= "DELIVERED", order_date__gte=datetime.date(res[0],res[1],res[2]), order_date__lte=datetime.date(pos[0],pos[1],pos[2])).annotate(day=TruncDate('order_date')).values('day').annotate(count=Count('id')).annotate(sum=Sum('grand_total')).order_by('-day').distinct()
     except:
-        report = Order.objects.filter(order_date__gte=datetime.date(2022, 6, 1), order_date__lte=datetime.date(2022, 6, 30)).annotate(day=TruncDate('order_date')).values('day').annotate(count=Count('id')).annotate(sum=Sum('grand_total')).order_by('-day')
+        report = Order.objects.filter(order_date__gte=datetime.date(2022, 6, 1), order_date__lte=datetime.date(2022, 6, 30)).annotate(day=TruncDate('order_date')).values('day').annotate(count=Count('id')).annotate(sum=Sum('grand_total')).order_by('-day').distinct()
     return render(request,'admin_T/daily_report.html',{'report': report})
 
 @admin_Login(signin)
@@ -377,5 +378,11 @@ def monthly_pdf(request):
     
     return response
 
+
+@admin_Login(signin)
+def select(request):
+    main = request.GET.get('main_categ')
+    category = Category.objects.filter(main_cate=main)
+    return render(request,'admin_T/select.html',{'mains':category})
 
 

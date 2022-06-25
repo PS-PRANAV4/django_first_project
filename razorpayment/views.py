@@ -17,40 +17,55 @@ def index(request):
 
 
 def order_payment(request,id,check):
-    request.session['check']  = check
-    user =request.user
-    print(user,'jjjjjjjjjjjjjjjj')
-    user_o = Accounts.objects.get(id=id)
-    print(check)
-    request.session['user']  = user_o.id
-    cart = Cart.objects.get(user=user_o)
-    if cart.grand_total > 0:
+    cart_id = request.session.get('cart_product')
+    if cart_id:
+        cart_products = CartProduct.objects.get(id = cart_id)
+        offer = cart_products.product.offer
+        amount = cart_products.product.price - offer
+    else:
+        request.session['check']  = check
+        user =request.user
+        print(user,'jjjjjjjjjjjjjjjj')
+        user_o = Accounts.objects.get(id=id)
+        print(check)
+        request.session['user']  = user_o.id
+        cart = Cart.objects.get(user=user_o)
+        if cart.grand_total > 0:
+            
+            cartproduct  = CartProduct.objects.filter(cart=cart)
+            total_offer = 0
+            for prod in cartproduct:
+                total_offer = total_offer + prod.product.offer*prod.quantity
+            if cart.coupon_offer > 0:
+                    total_offer = total_offer+cart.coupon_offer
+            amount = cart.grand_total-total_offer  
+        else:
+            return redirect(first)
         
-        cartproduct  = CartProduct.objects.filter(cart=cart)
-        total_offer = 0
-        for prod in cartproduct:
-            total_offer = total_offer + prod.product.offer*prod.quantity
-        amount = cart.grand_total-total_offer
-        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
-        razorpay_order = client.order.create(
-            {"amount": int(amount) * 100, "currency": "INR", "payment_capture": "1"}
+    client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+    razorpay_order = client.order.create(
+        {"amount": int(amount) * 100, "currency": "INR", "payment_capture": "1"}
+    )
+    print(razorpay_order['id'])
+    if cart_id:
+        payment = Payment.objects.create(
+            user=request.user, total_amount=amount, order_id=razorpay_order['id']
         )
-        print(razorpay_order['id'])
+    else:
         payment = Payment.objects.create(
             user=user_o, total_amount=amount, order_id=razorpay_order['id']
         )
-        payment.save()
-        return render(
-            request,
-            "payment.html",
-            {
-                "callback_url": "http://" + "127.0.0.1:8000" + "/razorpay/callback/",
-                "razorpay_key": settings.RAZORPAY_KEY_ID,
-                "order": payment,
-            },
-        )
-    else:
-        return redirect(first)
+    payment.save()
+    return render(
+        request,
+        "payment.html",
+        {
+            "callback_url": "http://" + "127.0.0.1:8000" + "/razorpay/callback/",
+            "razorpay_key": settings.RAZORPAY_KEY_ID,
+            "order": payment,
+        },
+    )
+        
 
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
 @csrf_exempt
