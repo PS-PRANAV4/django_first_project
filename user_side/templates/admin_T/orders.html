@@ -24,28 +24,28 @@
                     <th scope="row"><b>#{{order.id}}</b></th>
                     <td>
                       {% if order.status == "CANCEL" %}
-                        <div class="tm-status-circle moving">
-                          
-                          </div>{{order.status}}
+                        <div class="badge badge-warning">
+                          {{order.status}}ED
+                          </div>
                           {% elif order.status == "DELIVERED" %}
-                          <div class="tm-status-circle moving">
-                          
-                          </div>{{order.status}}
+                          <div class="badge badge-dark">
+                            {{order.status}}
+                          </div>
                           {% else %}
-                          <div class="tm-status-circle moving"></div>
-                        </div><a href="/admins/change_order_status/{{order.id}}">{{order.status}}</a>
+                          
+                        </div><a class="badge badge-danger" href="/admins/change_order_status/{{order.id}}">{{order.status}}</a>
                         {% endif %}
                     </td>
                     <td><b>{{order.user.username}}</b></td>
                     <td><b>{{order.delivery_address.address}}</b></td>
 
                     <td><b> {% if order.status == "PENDING" %}
-                      <a href="/admins/change_order_status/{{order.id}}/cancel">
+                      <a class="btn btn-outline-success" href="/admins/change_order_status/{{order.id}}/cancel">
                         CANCEL</a></b></td>
                         {% elif order.status == "DELIVERED" %}
-                        <span>CAN'T CANCEL DELIVERED ORDER</span>
+                        <span class="btn btn-outline-success">CAN'T CANCEL DELIVERED ORDER</span>
                         {% else %}
-                        <span>ORDER CANCEL BY USER</span>
+                        <span class="btn btn-outline-success">ORDER CANCEL BY USER</span>
                         {% endif %}
                     <td>{{order.order_date}}</td>
                     <td>08:00, 18 NOV 2018</td>

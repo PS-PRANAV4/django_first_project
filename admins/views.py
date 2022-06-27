@@ -19,7 +19,7 @@ from cart_orders.models import Cart,CartProduct,Order,ProductOrders
 import os
 from django.core.paginator import Paginator
 from django.db.models import Count,Avg,Sum
-from django.db.models.functions import TruncMonth,TruncDate,TruncWeek,TruncDay
+from django.db.models.functions import TruncMonth,TruncDate,TruncWeek,TruncDay, ExtractWeekDay
 import datetime
 from django.template.loader import render_to_string
 import os
@@ -31,6 +31,7 @@ from weasyprint import HTML
 import tempfile
 from django.db.models import Sum
 from.decorators import admin_Login
+
 
  
 
@@ -73,8 +74,21 @@ def signin(request):
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
 @admin_Login(signin)
 def main(request):
-    
-    return render(request, 'admin_T/first.html')   
+    c= Order.objects.annotate(count=ExtractWeekDay('order_date')).values('count').annotate(number=Count('id')).values('count', 'number')
+    wee = []
+    z=0
+    for x in range(1,8):
+        for week in c:
+            # print(week)
+            if week["count"] == x:
+                wee.append(week['number'])
+                print(wee[z])
+                z = z+1
+                
+                
+                
+                
+    return render(request, 'admin_T/first.html',{"week":wee})   
 
 
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
@@ -126,6 +140,8 @@ def add_product(request):
                     return redirect(add_product)
             
             product.image_product = request.FILES['image']
+            product.image_product4 = request.FILES['image1']
+            product.image_product5 = request.FILES['image2']
             product.save()
         else:
             messages.error(request,'please input the photo')
@@ -183,7 +199,7 @@ def edit_product(request,id):
 
 @admin_Login(signin)
 def product(request):
-    pro = Products.objects.all().order_by('id')
+    pro = Products.objects.all().order_by('-id')
     cats = Category.objects.all()
     product = Paginator(pro,5) 
     product_number = request.GET.get('pages')
@@ -284,11 +300,13 @@ def daily_report(request):
         fro = frm.split('-')
         too = to.split('-')
         print(fro[0])
-        res = [int(item) for item in fro]
+        
         try:
+            res = [int(item) for item in fro]
             pos = [int(item) for item in too]
         except:
             pos=[]
+            res = []
         request.session['res'] = res
         request.session['pos'] = pos
         return redirect(daily_report) 

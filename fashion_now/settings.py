@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'razorpayment.apps.RazorpaymentConfig',
     'wallet.apps.WalletConfig',
     'coupon.apps.CouponConfig',
+    'todo.apps.TodoConfig',
+    'notification.apps.NotificationConfig',
 ]
 
 MIDDLEWARE = [

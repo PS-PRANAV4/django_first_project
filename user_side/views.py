@@ -390,12 +390,22 @@ def addcart(request, id, us):
     myuser = Accounts.objects.get(id=us)
     print(myuser)
     single_cart = Cart.objects.get(user=myuser)
-    addcart = CartProduct.objects.create(product = product, cart = single_cart, quantity=1, total_amount= product.price )
+    print('here')
+    try:
+        alcart = CartProduct.objects.get(product=product,cart=single_cart)
+        alcart.quantity = alcart.quantity+1
+        alcart.save()
+        
+        print('nice')  
+    except Exception as e:
+        print(e)
+        addcart = CartProduct.objects.create(product = product, cart = single_cart, quantity=1, total_amount= product.price )
+        
     full_cart_product = CartProduct.objects.filter(cart = single_cart)
     total = 0
     total = int(total)
     for products in full_cart_product:
-        total = total+products.total_amount
+        total = total+(products.total_amount*products.quantity)
     single_cart.grand_total = total
     single_cart.save()
     return redirect(cart,us)
@@ -549,7 +559,7 @@ def hello(request):
         carts.grand_total = total
         carts.save()
         cars = cartproduct.quantity
-        return JsonResponse({'data': f"{cars}", 'yes': carts.grand_total})
+        return JsonResponse({'data': f"{cars}", 'yes': carts.grand_total,'cartproduct':cartproduct.total_amount})
 
 def hel(request):
     if request.method == "POST":
@@ -569,7 +579,7 @@ def hel(request):
         carts.grand_total = total
         carts.save()
         cars = cartproduct.quantity
-        return JsonResponse({'data': f"{cars}"})
+        return JsonResponse({'data': f"{cars}",'yes': carts.grand_total,'cartproduct':cartproduct.total_amount})
 
 
 

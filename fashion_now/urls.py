@@ -28,6 +28,8 @@ urlpatterns = [
     path('user_profile/',include('profiles.urls')),
     path('',include('razorpayment.urls')),
     path('admins/',include('coupon.urls')),
+    path('todo/',include('todo.urls')),
+
 
     
 ]+static(MEDIA_URL,document_root = MEDIA_ROOT)

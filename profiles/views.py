@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.shortcuts import redirect, render
 from admins.models import Accounts
 from cart_orders.models import Cart,CartProduct,Order,ProductOrders
+from wallet.models import Wallet
 from .models import Profile
 from django.contrib.auth.hashers import check_password
 
@@ -13,8 +14,9 @@ def user_profile(request,id):
     cart = Cart.objects.get(user = user)
     product_count = CartProduct.objects.filter(cart = cart).count()
     profile_count  = Profile.objects.filter(accounts=user).count()
+    wallet = Wallet.objects.get(user = user)
     return render(request,'user_profile/user_details.html',
-    {"total_orders":count,'total_products':product_count,"profile_count": profile_count})
+    {"total_orders":count,'total_products':product_count,"profile_count": profile_count,"wallet":wallet})
 
 
 def user_address(request,id):
