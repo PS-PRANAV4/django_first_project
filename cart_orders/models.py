@@ -17,8 +17,10 @@ class Cart(models.Model):
     grand_total = models.IntegerField(blank=True, null=True)
     coupon_offer = models.IntegerField(default=0)
     def __str__(self):
-        return self.user.username
-    
+        try:
+            return self.user.username
+        except:
+            return f"GUEST USER"
 
 class CartProduct(models.Model):
     product = models.ForeignKey(Products, on_delete=models.CASCADE, blank=True)
@@ -28,9 +30,12 @@ class CartProduct(models.Model):
     
 
     def __str__(self):
-        a = ( self.cart.user.username, self.product.name)
-        return '-'.join(a)
-    
+        try:
+            a = ( self.cart.user.username, self.product.name)
+            return '-'.join(a)
+        except:
+            return "GUEST USER"
+
     
 
 

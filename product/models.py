@@ -17,7 +17,7 @@ class MainCategory(models.Model):
         return self.name
     
 class Category(models.Model):
-    namer = models.CharField(max_length=50)
+    namer = models.CharField(max_length=50,unique=True)
     image = models.ImageField(upload_to = 'photos/category',blank = True)
     description = models.TextField()
     main_cate = models.ForeignKey(MainCategory,blank=True,null=True, on_delete=models.CASCADE, related_name='main_cate')

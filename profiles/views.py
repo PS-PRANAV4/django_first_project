@@ -1,3 +1,4 @@
+import email
 from django.contrib import messages
 from django.shortcuts import redirect, render
 from admins.models import Accounts
@@ -5,6 +6,7 @@ from cart_orders.models import Cart,CartProduct,Order,ProductOrders
 from wallet.models import Wallet
 from .models import Profile
 from django.contrib.auth.hashers import check_password
+import os
 
 # Create your views here.
 
@@ -78,3 +80,20 @@ def account(request,id):
             print('match')
             messages.error(request,"paswords doesn't match")
     return render(request,'user_profile/account_settings.html')
+
+
+def pic(request):
+    if request.method == "POST":
+        user = request.user
+        print(user)
+        pro = Accounts.objects.get(email =user)
+        if len(request.FILES)!=0:
+            print('entered1')
+            if len(pro.profile_pic)>0:
+                print('entered2')
+                os.remove(pro.profile_pic.path)
+                print('removed')
+            pro.profile_pic = request.FILES['pic']
+            pro.save()
+            print('saved')
+        return redirect(user_profile,pro.id)

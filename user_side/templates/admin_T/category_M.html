@@ -4,7 +4,8 @@
         {% block content %}
         {% load static %}
     
-      
+      <div class="row tm-content-row">
+        <div class="col-sm-12 col-md-12 col-lg-8 col-xl-8 tm-block-col">
           <div class="tm-bg-primary-dark tm-block tm-block-products">
             <div class="tm-product-table-container">
               <table class="table table-hover tm-table-small tm-product-table">
@@ -12,10 +13,10 @@
                   <tr>
                     <th scope="col">sl/no</th>
                     <th scope="col">PRODUCT NAME</th>
-                    <th scope="col">PRODUCT PRICE</th>
-                    <th scope="col">PRODUCT STOCK</th>
-                    <th scope="col">PRODUCT CATEGORY</th>
-                    <th scope="col">PRODUCT IMAGE</th>
+                    
+                  
+                    <th scope="col">MAIN CATEGORY</th>
+                    
                     <th scope="col">DELETE</th>
                     <th scope="col">EDIT</th>
                     <th scope="col">&nbsp;</th>
@@ -25,20 +26,18 @@
                   {% for product in pro %}
                   <tr>
                     <th scope="row">{{forloop.counter}}</th>
-                    <td class="tm-product-name">{{product.name}}</td>
-                    <td> {{product.price}} </td>
-                    <td> {{product.stock}} </td>
-                    <td>{{product.category_id}}</td>
-                    {% if product.image_product %}
-                    <td> <img src="{{product.image_product.url}}" style="width: 5ch;"  alt=""></td>
-                      {% endif %}
+                    <td class="tm-product-name">{{product.namer}}</td>
+                  
+                    
+                    <td>{{product.main_cate}}</td>
+                    
                     <td>
-                      <a href="delete/{{product.id}}" onclick="return confirm('confirm delete')" class="tm-product-delete-link">
+                      <a href="delete_category/{{product.id}}" onclick="return confirm('confirm delete')" class="tm-product-delete-link">
                         <i class="far fa-trash-alt tm-product-delete-icon"></i>
                       </a>
                     </td>
                     <td>
-                      <a href="edit_product/{{product.id}}" >
+                      <a href="edit_cate/{{product.id}}" >
                                             EDIT  </a>
                     </td>
                   </tr>
@@ -70,13 +69,36 @@
             </div>
             <!-- table container -->
             <a
-              href="add_product"
-              class="btn btn-primary btn-block text-uppercase mb-3">Add new product</a>
+              href="add_category"
+              class="btn btn-primary btn-block text-uppercase mb-3">ADD CATEGORY</a>
         
           </div>
         </div>
-        
-    
+        <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 tm-block-col">
+          <div class="tm-bg-primary-dark tm-block tm-block-product-categories">
+            <h2 class="tm-block-title">MAIN CATEGORY</h2>
+            {% for message in messages %}
+            <div class="alert alert-danger"> {{message}}  </div>
+            {% endfor %}
+            <div class="tm-product-table-container">
+              <table class="table tm-table-small tm-product-table">
+                <tbody>
+                  {% for cat in cats %}
+                  <tr>
+                    <td class="tm-product-name">{{cat.name}}</td>
+                    
+                  </tr>
+                 {% endfor %}
+                </tbody>
+              </table>
+             
+            </div>
+            <!-- table container -->
+            
+          </div>
+        </div>
+      </div>
+    </div>
     <footer class="tm-footer row tm-mt-small">
       <div class="col-12 font-weight-light">
         <p class="text-center text-white mb-0 px-4 small">

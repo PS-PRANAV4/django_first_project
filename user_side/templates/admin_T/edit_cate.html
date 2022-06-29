@@ -71,6 +71,7 @@
                       type="text"
                       class="form-control validate"
                       required
+                      value="{{cate.namer}}"
                     />
                   </div>
                   <div class="form-group mb-3">
@@ -83,7 +84,7 @@
                   id="main_category" name="main_categ"
                   
                 >
-                <option value="">SELECT</option>
+                <option value="{{cate.main_cate.id}}">{{cate.main_cate}}</option>
                 {% for ma in main %}
                 <option value="{{ma.id}}" name="{{ma.id}}" >{{ma.name}}</option>
                 {% endfor %}
@@ -101,7 +102,8 @@
                       required
                       name="details"
                       id="description"
-                    ></textarea>
+                      
+                    >{{cate.description}}</textarea>
                   </div>
                   <div id="snackbar"></div>
                   
@@ -171,7 +173,7 @@
             console.log('hello')
             function sendData(){
                 console.log('hello')
-                fetch('/admins/add_category',{
+                fetch('/admins/edit_cate',{
                     method : "POST",
                     headers : {
                         "Content-type" : "application/jason",
@@ -191,6 +193,7 @@
                   x.innerHTML = data.message
                   x.className = "show";
                   setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);;
+                  setTimeout(function(){ window.location.href = "/admins/category"}, 3000);;
                     
             });
         }

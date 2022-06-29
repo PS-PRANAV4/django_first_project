@@ -2,6 +2,7 @@ from datetime import datetime
 from email.policy import default
 from multiprocessing import context
 from pickle import TRUE
+from tkinter import E
 from tokenize import Number
 from unicodedata import category, name
 from django.db import IntegrityError
@@ -31,7 +32,9 @@ from weasyprint import HTML
 import tempfile
 from django.db.models import Sum
 from.decorators import admin_Login
-
+from notification.models import Notification
+import json
+from django.http import JsonResponse
 
  
 
@@ -85,10 +88,10 @@ def main(request):
                 print(wee[z])
                 z = z+1
                 
+    noti = Notification.objects.all()
                 
                 
-                
-    return render(request, 'admin_T/first.html',{"week":wee})   
+    return render(request, 'admin_T/first.html',{"week":wee, 'notification':noti})   
 
 
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
@@ -246,15 +249,29 @@ def delete_product(request,id):
 @admin_Login(signin)
 def add_category(request):
     if request.method == 'POST':
-        category_name = request.POST.get('name')
-        details = request.POST.get('details')
-        if category_name and details:
-            Category.objects.create(namer=category_name, description = details)
+        body = json.loads(request.body)
+        category_name = body['name']        
+        main = body['main_ca']
+        details = body['det']
+        
+        if category_name and details and main:
+            mains = MainCategory.objects.get(id= main)
+            print('hai')
+            try:
+                Category.objects.create(namer=category_name, description = details,main_cate = mains)
+            except IntegrityError:
+                
+                data = {'message': 'NAME ALREADY EXIST'}
+                return JsonResponse(data)
         else:
-            messages.error('please fill the form')
-        return redirect(add_category)
+            data = {'message': "PLEASE FILL THE FORM"}
+            return JsonResponse(data) 
 
-    return render(request, 'admin_T/add_category.html')
+
+        data = {'message': "CATEGORY ADDED"} 
+        return JsonResponse(data)
+    ma = MainCategory.objects.all()
+    return render(request, 'admin_T/add_category.html',{'main':ma})
 
 
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
@@ -264,7 +281,7 @@ def delete_category(request, id):
         Category.objects.get(id=id).delete()
     except:
         messages.error( request, "can't delete the category")
-    return redirect(product)
+    return redirect(category_managment) 
 
 @admin_Login(signin)
 def change(request,id,status = None):
@@ -404,3 +421,36 @@ def select(request):
     return render(request,'admin_T/select.html',{'mains':category})
 
 
+@admin_Login(signin)
+def category_managment(request):
+    category = Category.objects.all().order_by('-id')
+    main = MainCategory.objects.all().order_by('-id')
+    return render(request,'admin_T/category_M.html',{'pro': category, 'cats':main}) 
+
+
+@admin_Login(signin)
+def edit_cate(request,id=0):
+    if request.method == "POST":
+        body = json.loads(request.body)
+        category_name = body['name']        
+        main = body['main_ca']
+        details = body['det']
+        id= request.session.get('cate')
+        print(id)
+        try:
+            cate = Category.objects.filter(id=id).update(namer = category_name, description = details,main_cate = main) 
+        except Exception as e:
+            print(e)
+            data = {'message': "SOMTHING WENT WRONG"} 
+            return JsonResponse(data)    
+        data = {'message': "EDITED SUCCESFULLY"} 
+        return JsonResponse(data)
+
+
+
+
+    request.session['cate'] = id
+    cate = Category.objects.get(id=id)
+    mai  = MainCategory.objects.all()
+    print(id)
+    return render(request, 'admin_T/edit_cate.html',{'cate':cate, 'main':mai}) 

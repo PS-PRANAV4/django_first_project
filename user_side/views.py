@@ -54,17 +54,49 @@ def signin(request):
             print('authenticated')
             if user is not None:
                 cart_id = request.session.get('cart_id')
-                single_cart = Cart.objects.get(id=cart_id)
-                cart = Cart.objects.get(user=user)
-                pro = CartProduct.objects.filter(cart=cart)
-                carts = CartProduct.objects.filter(cart=single_cart)
-                grand_total = 0
-                for ca in carts:
-                    CartProduct.objects.create(cart=cart,product = ca.product,quantity = ca.quantity, total_amount = ca.total_amount)
-                    grand_total = grand_total+ca.total_amount
-                cart.grand_total = cart.grand_total + grand_total
-                cart.save()
-                single_cart.delete()
+                try:
+                    single_cart = Cart.objects.get(id=cart_id)
+                    cart = Cart.objects.get(user=user)
+                    pro = CartProduct.objects.filter(cart=cart)
+                    carts = CartProduct.objects.filter(cart=single_cart)
+                    grand_total = 0
+                    print("nice")
+                    prod = [x.product.id for x in carts]
+                    pros = [x.product.id for x in pro]
+                    setprod = set(prod)
+                    setpros = set(pros)
+                    inter  = list(setprod.intersection(setpros))
+                    print(inter)
+                    
+                    print(prod,pros)
+                    for ca in carts:
+                        id = int(ca.product.id) 
+                        print(id)
+                        t = (id in inter) 
+                        print(t)
+                        print('welcome')
+                        if t :
+                            print('first')
+                            item = CartProduct.objects.get(product = ca.product, cart = cart)
+                            print('second')  
+                            item.quantity = item.quantity + 1
+                            print('third')
+                            print(item.quantity)
+                            print('final') 
+                            item.save()
+                        else:      
+                            print("nice")
+                            CartProduct.objects.create(cart=cart,product = ca.product,quantity = ca.quantity, total_amount = ca.total_amount)
+                            grand_total = grand_total+ca.total_amount
+                    cart.grand_total = cart.grand_total + grand_total
+                    cart.save()
+                    single_cart.delete() 
+                except Exception as e:
+                    print(e)
+
+                    print('wel')
+                    pass
+                
 
                 login(request,user)
                 return redirect(first)

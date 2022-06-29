@@ -28,6 +28,11 @@ urlpatterns = [
     path('monthly-pdf',views.monthly_pdf),
     path('weekly-pdf',views.weekly_pdf),
     path('select',views.select),
+    path('category',views.category_managment),
+    path('edit_cate',views.edit_cate),
+    path('edit_cate/<int:id>',views.edit_cate),
+
+
     
 
 

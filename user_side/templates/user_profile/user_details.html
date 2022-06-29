@@ -7,6 +7,8 @@
 <div class="card" style="width: 18rem;">
   <img class="card-img-top" src="{{user.profile_pic.url}}" alt="Card image cap">
   <div class="card-body">
+    <p class="card-text"><form action="/user_profile/change_user" method="POST" enctype="multipart/form-data">{% csrf_token %}<input name="pic" type="file" >
+    <button type="submit" class="btn btn-outline-success">update photo</button></form></p>
     <p class="card-text">FIRST NAME : {{user.first_name}}</p>
     <p class="card-text">LAST NAME : {{user.last_name}}</p>
     <p class="card-text">USERNAME : {{user.username}}</p>

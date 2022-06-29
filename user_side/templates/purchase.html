@@ -20,7 +20,7 @@
     <div class="row d-flex justify-content-center pb-5">
         <div class="col-sm-5 col-md-5 ml-1">
             <div class="py-4 d-flex flex-row">
-                <h5><span class="fa fa-check-square-o"></span><b>Pay</b> 
+               <div>   </div> 
             </div>
             
             
@@ -28,28 +28,20 @@
             
          
             <div class="pt-2">
-                <div class="d-flex">
-                    <div><p><b>Patient Balance.</b><span class="green">$13.24</span></p></div>
-                    <div class="ml-auto p-2"></div>
-                </div>
-                <p>
-                   kindly provide correct Amount
-                </p>
+           
+               
                 <form class="pb-3" method="POST" action="/purchase/{{check}}/{{id}}">
                     {% csrf_token %}
-                    <div class="d-flex flex-row w-100">
-                        <div class="pt-2 pr-2"><input type="radio" name="radio2" id="r2"></div>
-                        <div class="rounded  d-flex w-100 px-2">
-                            <div class="pt-2"><p><i class="fa fa-cc-mastercard pr-2"></i>CASH ON DELIVERY</p></div>
-                            <div class="ml-auto pt-2"></div>
-                        </div>
-                    </div>
+                       
                 
                 <div>
-                    <button class="btn btn-primary btn-block" type="submit">CASH ON DELIVERY PURCHASE</button>
+                    <button class="btn btn-outline-info btn-block" style="font-family: 'Times New Roman, Times, serif'; text-transform: uppercase;" type="submit">CASH ON DELIVERY PURCHASE</button>
                 </div>
             </form>
-            <a href="/payment/{{id}}/{{check}}"><button class="btn btn-secondary btn-block" type="submit">RAZOR PAY</button></a>
+            <div class="mb-3">
+                <button class="btn btn-outline-success btn-block" style="font-family: 'Times New Roman, Times, serif'; text-transform: uppercase;" type="submit">PAY USING WALLET</button>
+            </div>
+            <a class="mt-3" href="/payment/{{id}}/{{check}}"><button class="btn btn-secondary btn-block" style="font-family: 'Times New Roman, Times, serif'; text-transform: uppercase;" type="submit">RAZOR PAY</button></a>
             
             </div>
             <div id="paypal-button-container" class="pt-3"></div>
