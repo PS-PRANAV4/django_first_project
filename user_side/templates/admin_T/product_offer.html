@@ -1,0 +1,259 @@
+{% extends 'admin_T/main.html' %}
+
+
+        {% block content %}
+        {% load static %}
+        <style>
+          #snackbar {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 2px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            bottom: 30px;
+            font-size: 17px;
+          }
+          
+          #snackbar.show {
+            visibility: visible;
+            -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+          }
+          
+          @-webkit-keyframes fadein {
+            from {bottom: 0; opacity: 0;} 
+            to {bottom: 30px; opacity: 1;}
+          }
+          
+          @keyframes fadein {
+            from {bottom: 0; opacity: 0;}
+            to {bottom: 30px; opacity: 1;}
+          }
+          
+          @-webkit-keyframes fadeout {
+            from {bottom: 30px; opacity: 1;} 
+            to {bottom: 0; opacity: 0;}
+          }
+          
+          @keyframes fadeout {
+            from {bottom: 30px; opacity: 1;}
+            to {bottom: 0; opacity: 0;}
+          }
+          </style>
+        <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+        <div id="snackbar"></div>
+      
+        <div class="row tm-content-row">
+          <div class="col-12 tm-block-col">
+            <div class="tm-bg-primary-dark tm-block tm-block-h-auto">
+              <h2 class="tm-block-title">List of Accounts</h2>
+              <p class="text-white">Accounts</p>
+  
+              <div class="tm-product-table-container">     
+                
+                <table class="table table-hover tm-table-small tm-product-table ">
+  
+                  <form action="accounts" style="position: fixed;"  method="POST">  <div class="input-group">
+                  {% csrf_token %}
+                  <div class="form-outline" >
+                    <input type="search" name="search" id="form1" class="form-control"  />
+                    
+                  </div>
+                  <div >
+                  <button type="submit" class="btn btn-primary" >
+                    <i class="fas fa-search"></i>
+                  </button>
+              
+                </div>
+                </div>
+              </form>
+
+  <thead class="" >
+    <tr>
+      <th scope="col">id</th>
+      <th scope="col">PRODUCT</th>
+      <th scope="col">PRODUCT PRICE</th>
+      <th scope="col">PRODUCT OFFER</th>
+      <th scope="col">ADD OFFER</th>
+      <th scope="col" >ADD</th>
+     
+      <!-- <th scope="col">Delete </th> -->
+    </tr>
+  </thead>
+  <tbody>
+    {% for product in products %}
+    <tr>
+      <th scope="row">{{forloop.counter}}</th>
+      <td>{{product.name}}</td>
+      <td>{{product.price}}</td>
+      <td id="{{product.name}}">{{product.offer}}</td>
+      <td><input id="{{product.id}}" type="text"></td>
+      <td><button class="btn btn-outline-primary" type="submit" onclick="add('{{product.id}}')">ADD</button></td>
+     
+    </tr>
+  {% endfor %}
+  
+  </tbody>
+  
+</table>
+{% if search %}
+<nav aria-label="Page navigation example">
+  <ul class="pagination">
+    {% if full_user.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="/admins/accounts?page={{full_user.previous_page_number}}" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+    {% endif %}
+    
+    <li class="page-item"><a class="page-link" href="">{{full_user.number}}</a></li>
+ {% if full_user.has_next %}   
+    <li class="page-item">
+      <a class="page-link" href="/admins/accounts?page={{full_user.next_page_number}}" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+</div>
+
+
+
+
+<!-- <a href="add_users"><button class="btn btn-primary  text-uppercase" >ADD USER</button></a> -->
+
+
+<script>
+  function delet(id){
+
+  swal({
+    title: "R U SURE",
+    text: "",
+    icon: "warning",
+    buttons: true,
+    dangerMode: true,
+  })
+  .then((willDelete) => {
+    if (willDelete) {
+      swal("COMPLETED", {
+        icon: "success",
+        
+        
+        
+      }).then(()=>{ window.location.href = "block/"+id
+    })
+
+      
+    } else {
+      swal("ENTRY DOESN'T DELETED");
+    }
+  });
+}
+</script>
+
+<script>
+
+function add(id)
+{
+ amount =  document.getElementById(id).value
+ 
+ console.log(id)
+ console.log(amount)
+
+
+
+
+ 
+  function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              // Does this cookie string begin with the name we want?
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+  }
+  var csrftoken = getCookie('csrftoken');
+  
+  
+      
+      console.log('hello')
+      sendData();
+      console.log('hello')
+      function sendData(){
+          console.log('hello')
+          fetch('/admins/add_offer',{
+              method : "POST",
+              headers : {
+                  "Content-type" : "application/jason",
+                  "X-CSRFToken": csrftoken,
+              },
+              body:JSON.stringify({
+                  
+                  id:id,
+                  amount:amount,
+                  
+              }),
+          })
+          .then(response => response.json())
+          .then((data) => { 
+            if(data.status == 'failed')
+            {
+              var x = document.getElementById("snackbar");
+                  x.innerHTML = data.message
+                  x.className = "show";
+                  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 2000);;
+                  document.getElementById(id).value = ''
+            }
+            else
+            {
+              console.log(data.name)
+              document.getElementById(data.name).innerHTML = amount
+              var x = document.getElementById("snackbar");
+                  x.innerHTML = data.message
+                  x.className = "show";
+                  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 2000);;
+                  document.getElementById(id).value = ''
+            } 
+              
+      });
+  
+
+      // Replace the above to show a success message within this page, e.g.
+      // const element = document.getElementById('paypal-button-container');
+      // element.innerHTML = '';
+      // element.innerHTML = '<h3>Thank you for your payment!</h3>';
+      // Or go to another URL:  actions.redirect('thank_you.html');
+ 
+}
+  
+
+
+
+
+
+}
+
+
+
+</script>
+
+
+
+
+{% endblock %}

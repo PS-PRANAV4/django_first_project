@@ -362,6 +362,10 @@ def check_out(request,id = 0):
         total_offer = 0
         for pros in cartproducts:
             total_offer = total_offer + pros.product.offer*pros.quantity
+            if pros.product.stock <=  0:
+                messages.error(request,'please remove out of stock prouct')
+                pre = pros.product.id
+                return redirect(product_details,pre)
         print('her')
         return render(request,'checkout.html',{'profile': profile,"cart": cart, "cartproduc": cartproducts, 'offer':total_offer })
 def guest_show(request,cart_id,total_offer):
@@ -375,6 +379,10 @@ def cart(request, us):
     if us == 0:
         pro = request.session.get('pro')
         pros = Products.objects.get(id=pro)
+        if pros.stock <=  0:
+            messages.error(request,'no stock product')
+            return redirect(product_details,pro)
+
         cart_id = request.session.get('cart_id')
         if cart_id == None:
             carts = Cart.objects.create(grand_total = pros.price,coupon_offer = 0)
@@ -419,6 +427,10 @@ def guest(request,id):
 @guest_user(guest)
 def addcart(request, id, us):
     product = Products.objects.get(id=id)
+    if product.stock <=  0:
+            messages.error(request,"product doesn't have any stock")
+            return redirect(product_details,id)
+    
     myuser = Accounts.objects.get(id=us)
     print(myuser)
     single_cart = Cart.objects.get(user=myuser)

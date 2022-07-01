@@ -3,6 +3,7 @@
 
         {% block content %}
         {% load static %}
+        <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
       
         <div class="row tm-content-row">
           <div class="col-12 tm-block-col">
@@ -56,9 +57,9 @@
       <td>{{usern.date_joined}}</td>
       {% if usern.is_active  %}
 
-      <td><a href="block/{{usern.id}}"><button style="width: 15ch;" class="btn btn-warning">Active</button></a></td>
+      <td><span ><button style="width: 15ch;" onclick="delet('{{usern.id}}')" class="btn btn-warning">Active</button></span></td>
       {% else %}
-      <td><a href="block/{{usern.id}}"><button class="btn btn-danger" style="width: 15ch;" >Deactive</button></a></td>
+      <td><span ><button class="btn btn-danger" onclick="delet('{{usern.id}}')" style="width: 15ch;" >Deactive</button></span></td>
       {% endif %}     
       <!-- <td><a href="delete_user/{{usern.id}}"><button class="btn btn-danger">DELETE</button></a></td> -->
     </tr>
@@ -90,5 +91,43 @@
 </nav>
 {% endif %}
 </div>
+
+
+
+
 <!-- <a href="add_users"><button class="btn btn-primary  text-uppercase" >ADD USER</button></a> -->
+
+
+<script>
+  function delet(id){
+
+  swal({
+    title: "R U SURE",
+    text: "",
+    icon: "warning",
+    buttons: true,
+    dangerMode: true,
+  })
+  .then((willDelete) => {
+    if (willDelete) {
+      swal("COMPLETED", {
+        icon: "success",
+        
+        
+        
+      }).then(()=>{ window.location.href = "block/"+id
+    })
+
+      
+    } else {
+      swal("ENTRY DOESN'T DELETED");
+    }
+  });
+}
+</script>
+
+
+
+
+
 {% endblock %}

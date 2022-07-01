@@ -4,6 +4,16 @@
         {% block content %}
         {% load static %}
 <div class="col-12 tm-block-col">
+    <form action="/admins/monthly" method="POST">
+        {% csrf_token %}
+        <div style="display: flex;">
+        <span class="badge badge-dark " style="display: flex; justify-content: center; align-items: center;">FROM</span>
+        <input type="month" style=" margin: .4rem 0;" name="from" id="from">
+        <span class="badge badge-dark" style="display: flex; justify-content: center; align-items: center;">TO</span>
+        <input type="month"  style=" margin: .4rem 0;" name="to" id="to">
+    </div>
+    <button class="btn btn-outline-success" type="submit">submit</button>
+    </form>
     <div class="tm-bg-primary-dark tm-block tm-block-taller tm-block-scroll">
         <h2 class="tm-block-title">Orders List</h2>
         <a href="/admins/monthly-pdf" class="btn btn-warning">DOWNLOAD PDF</a> 

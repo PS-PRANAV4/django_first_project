@@ -23,7 +23,7 @@ urlpatterns = [
     path('orders',views.orders_list),
     path('daily',views.daily_report),
     path('monthly',views.monthly_report),
-    path('weekly',views.weekly_report),
+    path('yearly',views.yearly_report),
     path('daily-pdf',views.daily_pdf),
     path('monthly-pdf',views.monthly_pdf),
     path('weekly-pdf',views.weekly_pdf),
@@ -31,6 +31,9 @@ urlpatterns = [
     path('category',views.category_managment),
     path('edit_cate',views.edit_cate),
     path('edit_cate/<int:id>',views.edit_cate),
+    path('product_offer',views.offer_product), 
+    path('add_offer',views.add_offer), 
+
 
 
     

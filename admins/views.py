@@ -20,7 +20,7 @@ from cart_orders.models import Cart,CartProduct,Order,ProductOrders
 import os
 from django.core.paginator import Paginator
 from django.db.models import Count,Avg,Sum
-from django.db.models.functions import TruncMonth,TruncDate,TruncWeek,TruncDay, ExtractWeekDay
+from django.db.models.functions import TruncMonth,TruncDate,TruncWeek,TruncDay, ExtractWeekDay , TruncYear
 import datetime
 from django.template.loader import render_to_string
 import os
@@ -35,6 +35,7 @@ from.decorators import admin_Login
 from notification.models import Notification
 import json
 from django.http import JsonResponse
+from .error import OfferAmountError
 
  
 
@@ -146,6 +147,7 @@ def add_product(request):
             product.image_product4 = request.FILES['image1']
             product.image_product5 = request.FILES['image2']
             product.save()
+            messages.error(request,'PRODUCT SAVED')
         else:
             messages.error(request,'please input the photo')
             return redirect(add_product)
@@ -181,24 +183,54 @@ def edit_product(request,id):
         pro.save()
            
         if len(request.FILES)!=0:
+            try:
+                image_product = request.FILES['image']
+                if len(image_product) > 0:
+                    if len(pro.image_product)>0:
+                        print('entered2')
+                        os.remove(pro.image_product.path)
+                        print('removed')
+                    pro.image_product = request.FILES['image']    
+            except: 
+                pass
+                print('yes')
+                
             print('entered1')
-            if len(pro.image_product)>0:
-                print('entered2')
-                os.remove(pro.image_product.path)
-                print('removed')
-            pro.image_product = request.FILES['image']
+                
+            
+            try:
+                image_product2 = request.FILES['image2']
+                if len(pro.image_product4)>0:
+                    print('entered2')
+                    os.remove(pro.image_product4.path)
+                    print('removed')
+                pro.image_product4 = request.FILES['image2']
+            except:
+                pass
+                
+
+            try:    
+                image_product3 = request.FILES['image3']
+                if len(pro.image_product5)>0:
+                    print('entered2')
+                    os.remove(pro.image_product5.path)
+                    print('removed')
+                pro.image_product5 = request.FILES['image3']
+            except:
+                pass
             pro.save()
-            print('saved')
-            return redirect(edit_product)
+        messages.error(request,'PRODUCT EDITED SUCCESFULLY')
+        return redirect(product)
             
 
 
         
 
-    product = Products.objects.get(id=id)
+    products = Products.objects.get(id=id)
     cate =Category.objects.all()
+    main = MainCategory.objects.all()
 
-    return render(request, 'admin_T/edit-product.html', {'product': product, 'cate':cate})
+    return render(request, 'admin_T/edit-product.html', {'product': products, 'cate':cate,'main':main})
 
 @admin_Login(signin)
 def product(request):
@@ -322,7 +354,7 @@ def daily_report(request):
             res = [int(item) for item in fro]
             pos = [int(item) for item in too]
         except:
-            pos=[]
+            pos = []
             res = []
         request.session['res'] = res
         request.session['pos'] = pos
@@ -343,12 +375,48 @@ def daily_report(request):
 
 @admin_Login(signin)
 def monthly_report(request):
-    report = Order.objects.filter(status='DELIVERED').annotate(month=TruncMonth('order_date')).values('month').annotate(count=Count('id')).annotate(sum=Sum('grand_total'))
+    if request.method == "POST":
+        frm = request.POST.get('from')
+        to = request.POST.get('to')
+
+        print(frm)
+        fro = frm.split('-')
+        too = to.split('-')
+        try:
+            res = [int(item) for item in fro]
+            pos = [int(item) for item in too]
+        except:
+            pos = []
+            res = []
+        request.session['from'] = res
+        request.session['to'] = pos
+        return redirect(monthly_report)
+
+    
+    pos = request.session.get('from')
+    res = request.session.get('to')
+    print(pos)
+    try:
+        del request.session['from']
+        del request.session['to']
+    except:
+        pass
+    try:
+        report = Order.objects.filter(status= "DELIVERED", order_date__year__gte=pos[0], order_date__month__gte=pos[1], order_date__year__lte=res[0], order_date__month__lte=res[1]).annotate(day=TruncMonth('order_date')).values('day').annotate(count=Count('id')).annotate(sum=Sum('grand_total'))
+        print(report)
+    except Exception as e:
+        print(e)
+        
+        report = Order.objects.filter(status='DELIVERED').annotate(day=TruncMonth('order_date')).values('day').annotate(count=Count('id')).annotate(sum=Sum('grand_total'))
+
+    
     return render(request,'admin_T/monthly_report.html',{'report': report})
+   
 
 @admin_Login(signin)
-def weekly_report(request):
-    report = Order.objects.filter(status='DELIVERED').annotate(weekly=TruncWeek('order_date')).values('weekly').annotate(count=Count('id')).annotate(sum=Sum('grand_total'))
+def yearly_report(request):
+    
+    report = Order.objects.filter(status='DELIVERED').annotate(weekly=TruncYear('order_date')).values('weekly').annotate(count=Count('id')).annotate(sum=Sum('grand_total'))
     
     return render(request,'admin_T/weekly_report.html',{'report': report})
 
@@ -375,7 +443,7 @@ def daily_pdf(request):
 
 @admin_Login(signin)
 def weekly_pdf(request):
-    report = Order.objects.filter(status='DELIVERED').annotate(day=TruncWeek('order_date')).values('day').annotate(count=Count('id')).annotate(sum=Sum('grand_total'))
+    report = Order.objects.filter(status='DELIVERED').annotate(weekly=TruncYear('order_date')).values('weekly').annotate(count=Count('id')).annotate(sum=Sum('grand_total'))
     response = HttpResponse(content_type = 'application/pdf')
     
     
@@ -441,16 +509,53 @@ def edit_cate(request,id=0):
             cate = Category.objects.filter(id=id).update(namer = category_name, description = details,main_cate = main) 
         except Exception as e:
             print(e)
-            data = {'message': "SOMTHING WENT WRONG"} 
+            data = {'message': "NAME ALREADY EXIST "} 
             return JsonResponse(data)    
         data = {'message': "EDITED SUCCESFULLY"} 
         return JsonResponse(data)
-
-
-
 
     request.session['cate'] = id
     cate = Category.objects.get(id=id)
     mai  = MainCategory.objects.all()
     print(id)
     return render(request, 'admin_T/edit_cate.html',{'cate':cate, 'main':mai}) 
+
+
+def offer_product(request):
+    products = Products.objects.all().order_by('-id')  
+    return render(request,'admin_T/product_offer.html',{'products': products})
+
+
+def add_offer(request):
+    body = json.loads(request.body)
+    
+    
+    try:
+        id = body['id']
+        amount =int( body['amount'])
+        product = Products.objects.get(id=id)
+        if amount > product.price:
+            raise OfferAmountError(amount)
+        product.offer = amount
+        product.save()
+        data = {'name':product.name,
+                'message': 'offer added'
+                }
+        return JsonResponse(data)
+    except OfferAmountError :
+        data = {'message':"value can't be grater than product price",
+                 'status': 'failed', 
+
+        }
+        return JsonResponse(data) 
+
+
+    except Exception as e:
+        print(e)
+        
+        data = {'message':'check the value u entered',
+                'status': 'failed',
+          }
+        return JsonResponse(data)
+
+    

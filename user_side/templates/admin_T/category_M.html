@@ -3,6 +3,7 @@
 
         {% block content %}
         {% load static %}
+        <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     
       <div class="row tm-content-row">
         <div class="col-sm-12 col-md-12 col-lg-8 col-xl-8 tm-block-col">
@@ -32,9 +33,9 @@
                     <td>{{product.main_cate}}</td>
                     
                     <td>
-                      <a href="delete_category/{{product.id}}" onclick="return confirm('confirm delete')" class="tm-product-delete-link">
+                      <span  onclick="delet('{{product.id}}')" class="tm-product-delete-link">
                         <i class="far fa-trash-alt tm-product-delete-icon"></i>
-                      </a>
+                      </span>
                     </td>
                     <td>
                       <a href="edit_cate/{{product.id}}" >
@@ -108,5 +109,27 @@
         </p>
       </div>
     </footer>
-
+    <script>
+        function delet(id){
+      
+        swal({
+          title: "Are you sure?",
+          text: "YOU NEED TO DELETE",
+          icon: "warning",
+          buttons: true,
+          dangerMode: true,
+        })
+        .then((willDelete) => {
+          if (willDelete) {
+            swal("ENTRY HAS BEEN DELETED", {
+              icon: "success",
+              
+            });
+            window.location.href = "delete_category/"+id
+          } else {
+            swal("ENTRY DOESN'T DELETED");
+          }
+        });
+      }
+      </script>
    {% endblock %}
