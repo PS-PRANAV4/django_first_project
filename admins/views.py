@@ -1,5 +1,6 @@
 from datetime import datetime
 from email.policy import default
+from itertools import count
 from multiprocessing import context
 from pickle import TRUE
 from tkinter import E
@@ -88,11 +89,22 @@ def main(request):
                 wee.append(week['number'])
                 print(wee[z])
                 z = z+1
-                
+    
+                 
     noti = Notification.objects.all()
+    now = datetime.datetime.now() 
+    year = int(now.year) 
+    month = int(now.month)
+    date = int(now.day) 
+    print('gggggggggggg')
+    print(date)
+
+    total_order = Order.objects.filter(order_date__year = year, order_date__month = month,order_date__day = date ).annotate(day=TruncDate('order_date')).values('day').annotate(count=Count('id')).annotate(sum=Sum('grand_total')) 
+    
+    print(datetime.date.today()) 
+    print(total_order)            
                 
-                
-    return render(request, 'admin_T/first.html',{"week":wee, 'notification':noti})   
+    return render(request, 'admin_T/first.html',{"week":wee, 'notification':noti, 'order_today': total_order})   
 
 
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)

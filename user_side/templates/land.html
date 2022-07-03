@@ -25,6 +25,7 @@
     <link rel="manifest" href="{% static 'assets/img/favicons/manifest.json' %}">
     <meta name="msapplication-TileImage" content="{% static 'assets/img/favicons/mstile-150x150.png' %}">
     <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 
     <!-- ===============================================-->
@@ -127,6 +128,7 @@
       <!-- ============================================-->
       <!-- <section> begin ============================-->
       <section class="py-0">
+        
 
         <div class="container">
           <div class="row h-100">
@@ -154,6 +156,7 @@
                        
                         <div style="width: 100%; display: flex; justify-content: center; " >
                           <a href="/buynow/{{product.id}}" class="btn btn-danger pl-5" >BUY NOW</a>
+                          <button onclick="product({{product.id}})" class="btn btn-info "  > <i class="fa fa-shopping-cart"></i></button>
                         </div>
                       </div>
                       {% else %}
@@ -170,6 +173,7 @@
                        
                         <div style="width: 100%; display: flex; justify-content: center; " >
                           <a href="/buynow/{{product.id}}" class="btn btn-danger pl-5" >BUY NOW</a>
+                          <button onclick="product({{product.id}})" class="btn btn-info "  > <i class="fa fa-shopping-cart"></i></button>
                         </div>
                       </div>
                       {% endif %}
@@ -220,6 +224,7 @@
                         
                         <div style="width: 100%; display: flex; justify-content: center; " >
                           <a href="/buynow/{{product.id}}" class="btn btn-danger pl-5" >BUY NOW</a>
+                          <button onclick="product({{product.id}})" class="btn btn-info "  > <i class="fa fa-shopping-cart"></i></button>
                         </div>
                       </div>
                       {% else %}
@@ -236,6 +241,7 @@
                        
                         <div style="width: 100%; display: flex; justify-content: center; " >
                           <a href="/buynow/{{product.id}}" class="btn btn-danger pl-5" >BUY NOW</a>
+                          <button onclick="product({{product.id}})" class="btn btn-info "  > <i class="fa fa-shopping-cart"></i></button>
                         </div>
                       </div>
                       {% endif %}
@@ -254,6 +260,7 @@
                         </div>
                         <div style="width: 100%; display: flex; justify-content: center; " >
                         <a href="/buynow/{{product.id}}" class="btn btn-danger pl-5" >BUY NOW</a>
+                        <button onclick="product({{product.id}})" class="btn btn-info "  > <i class="fa fa-shopping-cart"></i></button>
                       </div>
                       </div>
                     {% else %}
@@ -268,8 +275,9 @@
                         
                       </div>
                      
-                      <div style="width: 100%; display: flex; justify-content: center; " >
-                        <a href="/buynow/{{product.id}}" class="btn btn-danger pl-5" >BUY NOW</a>
+                      <div style="width: 100%; display: flex;  " >
+                        <a href="/buynow/{{product.id}}" class="btn btn-danger" >BUY NOW</a>
+                        <button onclick="product({{product.id}})" class="btn btn-info "  > <i class="fa fa-shopping-cart"></i></button>
                       </div>
                     </div>
                     {% endif %}
@@ -383,6 +391,80 @@
 
     <!-- ===============================================-->
     <!--    JavaScripts-->
+    
+<script>
+ 
+  
+  function product(id)
+
+  {
+  console.log(id) 
+  
+  function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              // Does this cookie string begin with the name we want?
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+  }
+  var csrftoken = getCookie('csrftoken');
+  
+  
+  
+      
+      console.log('hello')
+      sendData();
+      console.log('hello')
+      function sendData(){
+          console.log('hello')
+          fetch('/product_cart_add',{
+              method : "POST",
+              headers : {
+                  "Content-type" : "application/jason",
+                  "X-CSRFToken": csrftoken,
+              },
+              body:JSON.stringify({
+                  
+                  id:id,
+                  
+                  
+              }),
+          })
+          .then(response => response.json())
+          .then((data) => { 
+              
+          
+              
+      });
+  }
+
+}
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     <!-- ===============================================-->
     <script src="{% static 'vendors/@popperjs/popper.min.js' %}"></script>
     <script src="{% static 'vendors/bootstrap/bootstrap.min.js' %}"></script>

@@ -30,6 +30,13 @@ urlpatterns = [
     path('guest',views.guest ),
     path('addcart/<int:id>/None',views.guest ),
     path('guest_show/<int:cart_id>/<int:total_offer>',views.guest_show),
+    path('minus',views.minus),
+    path('add',views.add),
+    path('delet',views.delet),
+    path('product_cart_add',views.cart_product_add),
+
+
+
 
     
     

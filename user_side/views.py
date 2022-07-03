@@ -200,14 +200,32 @@ def signup(request):
         
 
         
-
-        my_user =Accounts.objects.create_user(first_name,last_name,username,email,pass1)
-        wallet = Wallet.objects.create(user = my_user)
+        try:
+            my_user =Accounts.objects.create_user(first_name,last_name,username,email,pass1)
+            wallet = Wallet.objects.create(user = my_user)
+            
+        except:
+            messages.error(request,"email already exist")
+            n = { 'login':'SIGNUp',
+                'value':3
+            }
+            c=a(n)
+            print('mail error')
+            return c
         if len(referal)>0:
-            user = Accounts.objects.get(referal_code = referal)
-            wallet = Wallet.objects.get(user=user)
-            wallet.amount = wallet.amount+50
-            wallet.save()
+            try:
+                user = Accounts.objects.get(referal_code = referal)
+                wallet = Wallet.objects.get(user=user)
+                wallet.amount = wallet.amount+50
+                wallet.save()
+            except : 
+                messages.error(request,"user referal code doesn't exist")
+            n = { 'login':'SIGNUp',
+                'value':7
+            }
+            c=a(n)
+            print('mail error')
+            return c
         if number:
             my_user.phone_number = number
             request.session['pk'] = my_user.pk
@@ -390,7 +408,7 @@ def cart(request, us):
             request.session['cart_id'] = cart_id
         single_cart = Cart.objects.get(id=cart_id)
         print(pros.price)
-        pro = CartProduct.objects.create(product=pros,quantity=1, total_amount = pros.price,cart = single_cart)
+        pro = CartProduct.objects.create(product=pros,quantity=1, total_amount = pros.price,cart = single_cart).order_by('id')
         
         full_cart = CartProduct.objects.filter(cart = single_cart)
         
@@ -402,17 +420,17 @@ def cart(request, us):
         single_cart.grand_total = total_amount
         single_cart.save()
         return redirect(guest_show,cart_id,total_offer)
-        return render(request,'shopping-cart.html',{'products':full_cart,'single':single_cart,'offer':total_offer})
+       
         
        
     myuser = Accounts.objects.get(id=us)
     single_cart = Cart.objects.get(user=myuser)
-    full_cart = CartProduct.objects.filter(cart = single_cart)
+    full_cart = CartProduct.objects.filter(cart = single_cart).order_by('-id')
     total_offer = 0
     for product in full_cart:
         total_offer = total_offer+product.product.offer*product.quantity
     
-    return render(request,'shopping-cart.html',{'products':full_cart,'single':single_cart,'offer':total_offer})
+    return render(request,'shop-cart.html',{'products':full_cart,'single':single_cart,'offer':total_offer})
 
 def guest(request,id):
     
@@ -438,6 +456,7 @@ def addcart(request, id, us):
     try:
         alcart = CartProduct.objects.get(product=product,cart=single_cart)
         alcart.quantity = alcart.quantity+1
+        alcart.total_amount = alcart.quantity * alcart.product.price 
         alcart.save()
         
         print('nice')  
@@ -731,3 +750,91 @@ def add_coupon(request):
     else:
         print('gone wrong')
 
+
+def minus(request):
+    if request.method == "POST":
+        body = json.loads(request.body)
+        cart_id = body['cart']
+        id = body['id']
+        cart = Cart.objects.get(id= cart_id)
+        cartproducts = CartProduct.objects.get(cart= cart, id=id)
+        if cartproducts.quantity == 1:
+            messages.error(request, 'product need quantity or remove')
+            data = {'quantity': cartproducts.quantity}
+            return JsonResponse(data)
+        cartproducts.quantity =  cartproducts.quantity - 1
+        cartproducts.save()
+        cartproducts.total_amount = cartproducts.quantity * cartproducts.product.price
+        cartproducts.save()
+        name = cartproducts.product.name
+        cartproduct = CartProduct.objects.filter(cart=cart)
+        total = 0
+        offer = 0
+        for pro in cartproduct:
+            total = total + pro.quantity * pro.product.price
+            offer = offer + (pro.product.offer * pro.quantity) 
+        cart.grand_total = total
+        cart.save()
+        data = {'quantity': cartproducts.quantity,  'total': cartproducts.total_amount, 'grand_total':total, 'offer':offer } 
+        
+        return JsonResponse(data)
+
+def add(request):
+    if request.method == "POST":
+        body = json.loads(request.body)
+        cart_id = body['cart']
+        id = body['id']
+        cart = Cart.objects.get(id= cart_id)
+        cartproducts = CartProduct.objects.get(cart= cart, id=id)
+        
+        cartproducts.quantity =  cartproducts.quantity + 1
+        cartproducts.save()
+        cartproducts.total_amount = cartproducts.quantity * cartproducts.product.price
+        cartproducts.save()
+        name = cartproducts.product.name
+        cartproduct = CartProduct.objects.filter(cart=cart)
+        total = 0
+        offer = 0
+        for pro in cartproduct:
+            total = total + pro.quantity * pro.product.price
+            offer = offer + (pro.product.offer * pro.quantity) 
+        cart.grand_total = total
+        cart.save() 
+        data = {'quantity': cartproducts.quantity, 'total': cartproducts.total_amount , 'grand_total':total, 'offer':offer }   
+        
+        return JsonResponse(data)
+
+
+
+def delet(request):
+    if request.method == "POST":
+        body = json.loads(request.body)
+        cart_id = body['cart']
+        id = body['id']
+        cart = Cart.objects.get(id= cart_id)
+        cartproducts = CartProduct.objects.get(cart= cart, id=id)
+        cartproducts.delete()
+        cartproduct = CartProduct.objects.filter(cart=cart)
+        total = 0
+        offer = 0
+        for pro in cartproduct:
+            total = total + pro.quantity * pro.product.price
+            offer = offer + (pro.product.offer * pro.quantity) 
+        cart.grand_total = total
+        cart.save() 
+        data = {'quantity': cartproducts.quantity, 'total': cartproducts.total_amount , 'grand_total':total, 'offer':offer }   
+        
+        return JsonResponse(data)
+
+
+def cart_product_add(request):
+    if request.method == "POST":
+        body = json.loads(request.body)
+        id = body['id']
+        product = Products.objects.get(id= id)
+        user = request.user
+        cart = Cart.objects.get(user = user)
+        CartProduct.objects.create(product = product, quantity = 1, total_amount = product.price, cart = cart )
+        data = {'quantity': True}   
+        
+        return JsonResponse(data)
