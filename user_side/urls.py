@@ -34,6 +34,13 @@ urlpatterns = [
     path('add',views.add),
     path('delet',views.delet),
     path('product_cart_add',views.cart_product_add),
+    path('shop',views.shop),
+    path('shop/<int:id>',views.shop_filter),
+    path('shop_cate/<int:id>',views.shop_filter_cate),
+    path('shop/search',views.shop_search), 
+
+
+
 
 
 

@@ -44,13 +44,16 @@ def first(request):
 
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
 def signin(request):
-    form = AuthenticationForm()
+    
     if not request.user.is_authenticated:
         if request.method == 'POST':
             print('posting')
             username = request.POST.get('username')
             pass5 = request.POST.get('pass')
+            print(pass5) 
             user = authenticate(username=username, password=pass5)
+            print(user)
+
             print('authenticated')
             if user is not None:
                 cart_id = request.session.get('cart_id')
@@ -104,6 +107,7 @@ def signin(request):
                 # return redirect(verify_view)
             else:
                 print('signin render')
+                
                 messages.error(request,'enter valid username and password')
                 return render(request,'log.html')
         else:
@@ -702,7 +706,7 @@ def invoice_pdf(request,id):
     response['Content-Disposition'] = 'inline; attachment; filename = daily report'+ \
         str(datetime.datetime.now()) + '.pdf'
     response["Content-Transfer-Encoding"] = 'binary'
-    html_string = render_to_string('invoice.html',{'order':order, 'products': productorder,'total':total,'offer':offer})
+    html_string = render_to_string('invoice_pdf.html',{'order':order, 'products': productorder,'total':total,'offer':offer}) 
     html = HTML(string= html_string)
     result = html.write_pdf()
     with tempfile.NamedTemporaryFile(delete=True) as output:
@@ -716,6 +720,9 @@ def invoice_pdf(request,id):
 
 def buy_now(request,id):
     product = Products.objects.get(id=id)
+    if product.stock <= 0:
+        messages.error(request, 'no stock')
+        return redirect(product_details, id)
     cart_product = CartProduct.objects.create(product=product,quantity = 1,total_amount = product.price - product.offer)
     request.session['cart_product'] = cart_product.id
     return redirect(check_out)
@@ -834,7 +841,69 @@ def cart_product_add(request):
         product = Products.objects.get(id= id)
         user = request.user
         cart = Cart.objects.get(user = user)
-        CartProduct.objects.create(product = product, quantity = 1, total_amount = product.price, cart = cart )
+        try:
+            cartproduct = CartProduct.objects.get(product=product, cart=cart)
+            cartproduct.quantity = cartproduct.quantity + 1
+            cartproduct.total_amount = cartproduct.quantity * cartproduct.product.price
+            cartproduct.save()
+        except Exception as e:
+            print(e)
+            CartProduct.objects.create(product = product, quantity = 1, total_amount = product.price, cart = cart )
+
+
+        full_cart = CartProduct.objects.filter(cart = cart).aggregate(sum = Sum('total_amount'))
+        print(full_cart) 
+        cart.grand_total = full_cart['sum'] 
+        cart.save()
         data = {'quantity': True}   
         
         return JsonResponse(data)
+
+
+def shop(request):
+    products = Products.objects.all()
+    main_category = MainCategory.objects.all()
+    category = Category.objects.all()
+    return render(request,'shop_filter.html',{'products':products,'main_category':main_category, 'category':category}) 
+
+
+def shop_filter(request,id):
+    product = Products.objects.none()
+    if id:
+        main =Category.objects.filter(main_cate__id = id)
+        for category in main:
+            cate = category.category.all()
+            product |= cate
+            print(cate)
+            print(product)
+    main_category = MainCategory.objects.all()
+
+    category = Category.objects.all()
+    return render(request,'shop_filter.html', {'products':product,'main_category':main_category, 'category':category})
+
+def shop_filter_cate(request,id):
+    main_category = MainCategory.objects.all()
+    product = Products.objects.filter(category_id = id)
+    category = Category.objects.all()
+    return render(request,'shop_filter.html', {'products':product,'main_category':main_category, 'category':category})
+
+def shop_search(request):
+    if request.method == 'POST':
+        name = request.POST.get('content')
+        request.session['name'] = name
+        return redirect(shop_search)
+    name = request.session.get('name')
+    print(name)
+    product = Products.objects.filter(name__icontains = name)
+    print(product) 
+    if not product:
+        print('hello')
+        product = Products.objects.filter(category_id__namer__icontains = name) 
+    main_category = MainCategory.objects.all()
+    
+    category = Category.objects.all()
+    return render(request,'shop_filter.html', {'products':product,'main_category':main_category, 'category':category})
+    
+ 
+
+ 

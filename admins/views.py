@@ -82,13 +82,20 @@ def main(request):
     c= Order.objects.annotate(count=ExtractWeekDay('order_date')).values('count').annotate(number=Count('id')).values('count', 'number')
     wee = []
     z=0
+    g = 0
+    print("sssssssssssssss")
+    print(c)
     for x in range(1,8):
+        j = 0
         for week in c:
             # print(week)
             if week["count"] == x:
                 wee.append(week['number'])
-                print(wee[z])
+                # print(wee[z])
                 z = z+1
+                j=1
+        if j == 0:
+            wee.append(g)
     
                  
     noti = Notification.objects.all()
@@ -99,12 +106,14 @@ def main(request):
     print('gggggggggggg')
     print(date)
 
-    total_order = Order.objects.filter(order_date__year = year, order_date__month = month,order_date__day = date ).annotate(day=TruncDate('order_date')).values('day').annotate(count=Count('id')).annotate(sum=Sum('grand_total')) 
+    total_order = Order.objects.filter(order_date__year = year, order_date__month = month,order_date__day = date ).count()
+    total_revenu = Order.objects.filter(order_date__year = year, order_date__month = month,order_date__day = date).aggregate(sum = Sum('grand_total'))
     
     print(datetime.date.today()) 
-    print(total_order)            
+    print(total_order)
+    print(wee)            
                 
-    return render(request, 'admin_T/first.html',{"week":wee, 'notification':noti, 'order_today': total_order})   
+    return render(request, 'admin_T/first.html',{"week":wee, 'notification':noti, 'order_today': total_order, 'revenue_today':total_revenu})   
 
 
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
@@ -545,6 +554,8 @@ def add_offer(request):
     try:
         id = body['id']
         amount =int( body['amount'])
+        if amount < 0:
+            raise ValueError
         product = Products.objects.get(id=id)
         if amount > product.price:
             raise OfferAmountError(amount)
@@ -571,3 +582,4 @@ def add_offer(request):
         return JsonResponse(data)
 
     
+

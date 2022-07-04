@@ -33,6 +33,8 @@ urlpatterns = [
     path('edit_cate/<int:id>',views.edit_cate),
     path('product_offer',views.offer_product), 
     path('add_offer',views.add_offer), 
+     
+
 
 
 

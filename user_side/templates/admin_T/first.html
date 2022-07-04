@@ -171,8 +171,8 @@ https://dribbble.com/shots/14101951-Banners
       <!-- <div class="card__icon" style="display: flex; flex-direction: column-reverse;"><i class="fas fa-bolt"></i></div> -->
       <!-- <p class="card__exit"><i class="fas fa-times"></i></p> -->
       
-      {% for orders in order_today %}
-      <h2 class="card__title" style="display: flex; justify-content: center;">{{orders.count}}</h2>
+      
+      <h2 class="card__title" style="display: flex; justify-content: center;">{{order_today}}</h2>
       
       <!-- <p class="card__apply">
         <a class="card__link" href="#">Apply Now <i class="fas fa-arrow-right"></i></a>
@@ -183,8 +183,8 @@ https://dribbble.com/shots/14101951-Banners
     <!-- <div class="card__icon"><i class="fas fa-bolt"></i></div>
     <p class="card__exit"><i class="fas fa-times"></i></p> -->
     <h2 class="card__title" style="display: flex; justify-content: center;">TOTAL REVENUE TODAY</h2>
-    <h2 class="card__title" style="display: flex; justify-content: center;">{{orders.sum}}</h2>
-    {% endfor %}
+    <h2 class="card__title" style="display: flex; justify-content: center;">{{revenue_today.sum}}</h2>
+   
     <!-- <p class="card__apply">
       <a class="card__link" href="#">Apply Now <i class="fas fa-arrow-right"></i></a>
     </p> -->
@@ -254,7 +254,7 @@ https://dribbble.com/shots/14101951-Banners
                 
                 type: 'bar',
                 data: {
-                    labels: [ 'MONDAY', 'TUESDAY', 'WED', 'THU', 'FRI','SAT',],
+                    labels: [ 'SUNDAY', 'MONDAY', 'TUE', 'WED', 'THU','FRI',],
                     datasets: [{
                         label: "ORDER",
                 backgroundColor: "rgba(159,170,174,0.8)",
@@ -284,22 +284,23 @@ https://dribbble.com/shots/14101951-Banners
                 },
                 options: {
                     scales: {
-                        yAxes: [{
+                        Y: {
                             ticks: {
-                                fontColor: "green",
+                                color:['yellow'],
+                                
                                 fontSize: 18,
-                                stepSize: 1,
+                                stepSize: 5,
                                 beginAtZero: true
                             }
-                        }],
-                        xAxes: [{
+                        },
+                        X: {
                             ticks: {
-                                fontColor: "purple",
+                              color:['red',],
                                 fontSize: 14,
-                                stepSize: 1,
-                                beginAtZero: true
+                                stepSize: 5,
+                                
                             }
-                        }]
+                        }
                     }
                 }
             });
