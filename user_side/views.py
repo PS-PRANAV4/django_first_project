@@ -2,6 +2,7 @@
 from distutils.log import error
 import email
 import json
+from re import T
 from turtle import home
 from unicodedata import category
 from django.http import HttpResponse
@@ -34,6 +35,8 @@ from weasyprint import HTML
 import tempfile
 from django.db.models import Sum
 from wallet.models import Wallet
+import os
+from twilio.rest import Client
 
 # Create your views here.
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
@@ -204,45 +207,65 @@ def signup(request):
         
 
         
-        try:
-            my_user =Accounts.objects.create_user(first_name,last_name,username,email,pass1)
-            wallet = Wallet.objects.create(user = my_user)
-            
-        except:
-            messages.error(request,"email already exist")
-            n = { 'login':'SIGNUp',
-                'value':3
-            }
-            c=a(n)
-            print('mail error')
-            return c
-        if len(referal)>0:
-            try:
-                user = Accounts.objects.get(referal_code = referal)
-                wallet = Wallet.objects.get(user=user)
-                wallet.amount = wallet.amount+50
-                wallet.save()
-            except : 
-                messages.error(request,"user referal code doesn't exist")
-            n = { 'login':'SIGNUp',
-                'value':7
-            }
-            c=a(n)
-            print('mail error')
-            return c
+        
+        
         if number:
+            try:
+                my_user =Accounts.objects.create_user(first_name,last_name,username,email, number, pass1)
+                wallet = Wallet.objects.create(user = my_user)
+            
+            except Exception as e:
+                print(e)
+
+                messages.error(request,"number already exist")
+                n = { 'login':'SIGNUp',
+                'value':3
+                }
+                c=a(n)
+                print('mail error')
+                return c
             my_user.phone_number = number
             request.session['pk'] = my_user.pk
+            account_sid = 'AC19ac143574cb2d7ec98fc7f98c0dd92c'
+            auth_token = '7a2341a34d1a22a38d66e6f8418de7b7'
+            client = Client(account_sid, auth_token)
+
+            verification = client.verify \
+                     .services('VA7a7b213770440143ef193203f8bec694') \
+                     .verifications \
+                     .create(to= f"+91{number}", channel='sms')
+
+            print(verification.status)
+
+            if len(referal)>0:
+                try:
+                    user = Accounts.objects.get(referal_code = referal)
+                    wallet = Wallet.objects.get(user=user)
+                    wallet.amount = wallet.amount+50
+                    wallet.save()
+                except : 
+                    messages.error(request,"user referal code doesn't exist")
+                    n = { 'login':'SIGNUp',
+                    'value':7
+                        }
+                    c=a(n)
+                    print('mail error')
+                    return c
             
-        print('user created')
-        my_user.is_active = False
-        my_user.save()
-        print(my_user.id)
-        cart = Cart.objects.create(user = my_user)
-        print('user created')
-        messages.success(request, "u succesfully created a user now verify the number")
+            print('user created')
+            my_user.is_active = False
+            my_user.save()
+            print(my_user.id)
+            cart = Cart.objects.create(user = my_user)
+            print('user created')
+            messages.success(request, "u succesfully created a user now verify the number")
         
-        return redirect(verify_view)
+            return redirect(verify_view)
+        
+
+        
+
+
     else:
         n = { 'login':'SIGNUp',
                 'value':0
@@ -286,32 +309,39 @@ def product_details(request,id):
 
 
 def verify_view(request):
-    form = CodeForm(request.POST or None)
-    pk = request.session.get('pk')
-    if pk:
-        user = Accounts.objects.get(pk=pk)
-        code = user.code
-        code_user = f"{user.username}: {user.code}"
-        if not request.POST:
-            print(code_user)
-            send_sms(code_user, user.phone_number)
-        if form.is_valid():
-            num = form.cleaned_data.get('number')
+    
+     
+    if request.method == 'POST':
+        id = request.session.get('pk')
+        print(id)
+    
+    
+        user = Accounts.objects.get(id = id)
+        number = user.phone_number
+        codes = request.POST.get('username')
+        account_sid = 'AC19ac143574cb2d7ec98fc7f98c0dd92c'
+        auth_token = '7a2341a34d1a22a38d66e6f8418de7b7'
+        client = Client(account_sid, auth_token)
 
-            if str(code) == num:
-                code.save()
-                messages.success(request,'phone no verified')
-                user.is_active = True
-                user.save()
-                return redirect(signin)
-            else:
-                messages.error(request, 'wrong otp account not created')
-                user.delete()
-                return redirect(signin)
-    return render(request, 'verify.html', {'form':form})
+        verification_check = client.verify \
+                            .services('VA7a7b213770440143ef193203f8bec694') \
+                            .verification_checks \
+                            .create(to=f"+91{number}", code=codes)
+
+        print('login')
+        if verification_check.status == 'approved':
+            user.is_active = True
+            user.save()
+            login(request,user)
+            return redirect(first)
+        else:
+            messages.error(request,'wrong code')
+            return redirect(verify_view)
+    return render(request,'otp_signup.html')
+     
 
 
-
+@cache_control(no_cache = True, must_revalidate = True, no_store = True)
 def check_out(request,id = 0):
     
     try:
@@ -504,13 +534,18 @@ def checkout(request,check, id):
     cart_id = request.session.get('cart_product')
     if cart_id:
         cart_products = CartProduct.objects.get(id = cart_id)
-        order = Order.objects.create(user = user_details, delivery_address = profile, status = 'PENDING', grand_total = cart_products.total_amount )
+        order = Order.objects.create(user = user_details, delivery_address = profile, status = 'ACCEPTED', grand_total = cart_products.total_amount )
         cart_products.delete()
         id= order.id
+        cash = request.session.get('cash')
+        if cash:
+            order.transaction_type = "CASH ON DELIVERY"
+            request.session['cash'] = False
+            order.save()
         return redirect(invoice,id)
     if user_cart.grand_total > 0:
         total_offer = 0
-        order = Order.objects.create(user = user_details, delivery_address = profile, status = 'PENDING', grand_total = user_cart.grand_total )
+        order = Order.objects.create(user = user_details, delivery_address = profile, status = 'ACCEPTED', grand_total = user_cart.grand_total )
         for cart in cart_product:
             total_offer = total_offer + cart.product.offer*cart.quantity
             ProductOrders.objects.create(product = cart.product, quantity = cart.quantity, total_amount = cart.total_amount, main_order = order)
@@ -523,6 +558,11 @@ def checkout(request,check, id):
         order.grand_total = order.grand_total - total_offer
         order.save()
         cart_product.delete()
+        cash = request.session.get('cash')
+        if cash:
+            order.transaction_type = "CASH ON DELIVERY"
+            request.session['cash'] = False
+            order.save()
         user_cart.grand_total = 0
         user_cart.save()
         id = order.id
@@ -548,6 +588,7 @@ def purchase(request,check,id):
         if cart.grand_total>0:
         
             if request.method == "POST":
+                request.session['cash'] = True
                 return redirect(checkout,check,id)
             cartproduct = CartProduct.objects.filter(cart=cart)
             total_offer = 0
@@ -907,3 +948,51 @@ def shop_search(request):
  
 
  
+def login_otp(request):
+    if request.method == "POST":
+        number = request.POST.get('username')
+        try :
+            user = Accounts.objects.get(phone_number = number)
+        except: 
+            messages.error(request, "phone number doesn't exist")
+            return redirect(login_otp)
+        request.session['id'] = user.id
+        print(number) 
+        account_sid = 'AC19ac143574cb2d7ec98fc7f98c0dd92c'
+        auth_token = '7a2341a34d1a22a38d66e6f8418de7b7'
+        client = Client(account_sid, auth_token)
+
+        verification = client.verify \
+                     .services('VA7a7b213770440143ef193203f8bec694') \
+                     .verifications \
+                     .create(to= f"+91{number}", channel='sms')
+
+        print(verification.status)
+        return redirect(otp_veify)
+    return render(request, 'otp_login.html')    
+
+
+def otp_veify(request):
+    id = request.session.get('id')
+    print(id)
+    
+    
+    user = Accounts.objects.get(id = id)
+    number = user.phone_number
+    print(number)  
+    if request.method == 'POST':
+        codes = request.POST.get('username')
+        account_sid = 'AC19ac143574cb2d7ec98fc7f98c0dd92c'
+        auth_token = '7a2341a34d1a22a38d66e6f8418de7b7'
+        client = Client(account_sid, auth_token)
+
+        verification_check = client.verify \
+                            .services('VA7a7b213770440143ef193203f8bec694') \
+                            .verification_checks \
+                            .create(to=f"+91{number}", code=codes)
+
+        print('login')
+        if verification_check.status == 'approved':
+            login(request,user)
+            return redirect(first)
+    return render(request, 'verifi.html') 

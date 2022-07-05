@@ -10,7 +10,7 @@ import uuid
 
 tran_type = (("PAYPAL","PAYPAL"),("RAZORPAY","RAZORPAY"),("COD","COD"))
 
-delivery_choices = (("PENDING", "PENDING"),("ACCEPTED", "ACCEPTED"), ("DELIVERED","DELIVERED"),("CANCELED","CANCELED"),("FAILED","FAILED"))
+delivery_choices = (("ACCEPTED", "ACCEPTED"), ("DELIVERED","DELIVERED"),("CANCELED","CANCELED"),("FAILED","FAILED"),("SHIPPED","SHIPPED"),("OUT FOR DEIVERY","OUT FOR DELIVERY"))
 
 class Cart(models.Model):
     user = models.OneToOneField(Accounts, on_delete=models.CASCADE, blank=True, null=True)
@@ -43,7 +43,7 @@ class CartProduct(models.Model):
 class Order(models.Model):
     user = models.ForeignKey(Accounts, on_delete=models.SET_NULL, blank=True, null=True)
     delivery_address = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    status = models.CharField(choices= delivery_choices, default="PENDING", max_length=20)
+    status = models.CharField(choices= delivery_choices, default="ACCEPTED", max_length=20)
     grand_total = models.IntegerField(blank =True)
     order_date = models.DateTimeField(auto_now_add=True,blank=True, null=True)
     delivery_date = models.DateTimeField(blank=True, null=True)

@@ -41,7 +41,7 @@
                     <td><b>{{reports.count}}</b></td>
 
                     <td>{{reports.sum}}</td>
-                    <td>{{reports.sum|div:report.count}}</td>
+                    <td>{{reports.sum|div:report.count|floatformat:2}}</td>
                 </tr>
    {% endfor %}             
             </tbody>

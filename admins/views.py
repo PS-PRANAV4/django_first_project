@@ -345,6 +345,13 @@ def change(request,id,status = None):
         order.status = "CANCEL"
     elif order.status == "PENDING":
         order.status = "DELIVERED"
+    elif order.status == "ACCEPTED":
+        order.status = "SHIPPED"
+    elif order.status == "SHIPPED":
+        order.status = "OUT FOR DELIVERY"
+    elif order.status == "OUT FOR DELIVERY":
+        order.status = "DELIVERED"
+
     else:
         order.status = "PENDING"
     order.save()

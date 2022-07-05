@@ -6,6 +6,65 @@
 {% load static %}
 {% load mathfilters %}
 <!-- Page Preloder -->
+
+<style>
+/**
+  Default Markup
+**/
+
+
+  <!-- .containers {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  
+  /**
+    Component
+  **/
+  
+  label {
+      width: 100%;
+  }
+  
+  .card-input-element {
+      display: none;
+  }
+  
+  .card-input {
+      margin: 10px;
+      padding: 0px;
+  }
+  
+  .card-input:hover {
+      cursor: pointer;
+  }
+  
+  .card-input-element:checked + .card-input {
+       box-shadow: 0 0 1px 1px #2ecc71;
+  }
+  
+  
+
+
+
+</style> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     <div id="preloder">
         <div class="loader"></div>
     </div>
@@ -49,12 +108,45 @@
                             
                             
                             
+                                <div class="containers">
+  
+                                   
+                                    
+                                    <div class="row">
+                                      {% for pro in profile  %}
+                                        <div class="col-md-4 col-lg-4 col-sm-4">
+                                          
+                                          <label>
+                                            <input type="radio" value="{{pro.id}}" name="check" selected checked class="card-input-element" />
+                                  
+                                              <div class="card card-default card-input">
+                                                <div class="card-header">{{pro.first_name}} {{pro.last_name}}</div>
+                                                <div class="card-body">
+                                                  {{pro.address}}
+                                                  {{pro.country_name}}
+                                                  {{pro.state}}
+                                                  {{pro.post_code}}
+                                                  {{pro.phone_number}}
+                                                  {{pro.email}}
+                                                  
+                                                </div>
+                                                
+                                              </div>
+                                  
+                                          </label>
+                                          
+                                        </div>
+                                        {% endfor %}
+                                       
+                                    </div>
+                                    
+                                  </div>
                             
                             
                             
                             
-                            
-                           
+                                  
+                              
                           
                            
                         </div>
@@ -79,15 +171,7 @@
                                     <li>GRAND TOTAL<span id="va" >₹{{cart.grand_total|sub:offer}}</span></li>
                                     
                                 </ul>
-                                {% for prof in profile %}
-                                <div class="checkout__input__checkbox">
-                                    <label for="acc-or{{forloop.counter}}">
-                                        {{prof.address}}
-                                        <input type="radio" id="acc-or{{forloop.counter}}" value="{{prof.id}}" name="check">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                </div>
-                                {% endfor %}
+                               
                                 <div id="message" style="text-transform: uppercase;"   class="text-danger"></div>
                                 <button type="submit"  id="place" class="site-btn">PLACE ORDER</button>
                             </div>

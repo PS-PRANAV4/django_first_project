@@ -7,7 +7,7 @@ import uuid
 
 class Manager(BaseUserManager):
 
-    def create_user(self, first_name, last_name, username, email, password=None):
+    def create_user(self, first_name, last_name, username, email, phone_number, password=None, ):
         if not email:
             raise ValueError('user must have an email')
         
@@ -15,7 +15,7 @@ class Manager(BaseUserManager):
             raise ValueError('user must have an username')
         
 
-        user = self.model(email = self.normalize_email(email), username = username, first_name = first_name, last_name = last_name,)
+        user = self.model(email = self.normalize_email(email), username = username, first_name = first_name, last_name = last_name,phone_number = phone_number)
         
         user.set_password(password)
         user.save(using=self._db)
@@ -46,7 +46,7 @@ class Accounts(AbstractBaseUser):
     last_name = models.CharField(max_length=50)
     username = models.CharField(max_length=50, unique=True)
     email = models.EmailField(max_length=100,unique=True)
-    phone_number = models.CharField(max_length=50,blank=True)
+    phone_number = models.CharField(max_length=50,blank=True, unique=True)
     profile_pic = models.ImageField(upload_to = 'photos/profile_pic', blank = True, max_length=300)
 
 
