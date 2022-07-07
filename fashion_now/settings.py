@@ -96,8 +96,7 @@ DATABASES={
       'NAME':'fashion_now',
       'USER':'postgres',
       'PASSWORD':'pranavpranab#12345',
-      'HOST':'localhost',
-      'PORT':'5432',
+      
    }
 }
 
