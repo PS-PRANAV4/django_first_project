@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 import os
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -148,3 +149,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 RAZORPAY_KEY_ID = 'rzp_test_4f54WeJvRPZaGn'
 RAZORPAY_KEY_SECRET = 'rrFYP9X2lG1lj47iUVhCc21P'
 # GIT REPO = https://github.com/PS-PRANAV4/django_first_project.git
+TWILLIO_ACCOUNT_SID = config('TWILLIO_ACCOUNT_SID')
+TWILLIO_AUTH_TOKEN = config('TWILLIO_AUTH_TOKEN')
+TWILLIO_SERVICE_ID = config('TWILLIO_SERVICE_ID')  

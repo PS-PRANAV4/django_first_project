@@ -39,7 +39,11 @@ urlpatterns = [
     path('shop_cate/<int:id>',views.shop_filter_cate),
     path('shop/search',views.shop_search),
     path('otp',views.login_otp), 
-    path('otp_verify',views.otp_veify), 
+    path('otp_verify',views.otp_veify),
+    path('guest_check',views.guest_check),
+    path('redirects_for_guest',views.buy_now_redirect),
+    path('best_deals', views.best_deals),
+    path('pay_using wallet/<int:check>',views.pay_wallet),   
 
 
 

@@ -37,6 +37,7 @@ from django.db.models import Sum
 from wallet.models import Wallet
 import os
 from twilio.rest import Client
+from fashion_now.settings import TWILLIO_SERVICE_ID,TWILLIO_ACCOUNT_SID,TWILLIO_AUTH_TOKEN
 
 # Create your views here.
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
@@ -226,17 +227,17 @@ def signup(request):
                 return c
             my_user.phone_number = number
             request.session['pk'] = my_user.pk
-            account_sid = 'AC19ac143574cb2d7ec98fc7f98c0dd92c'
-            auth_token = '7a2341a34d1a22a38d66e6f8418de7b7'
+            account_sid = TWILLIO_ACCOUNT_SID 
+            auth_token = TWILLIO_AUTH_TOKEN 
             client = Client(account_sid, auth_token)
 
             verification = client.verify \
-                     .services('VA7a7b213770440143ef193203f8bec694') \
+                     .services(TWILLIO_SERVICE_ID) \
                      .verifications \
                      .create(to= f"+91{number}", channel='sms')
 
             print(verification.status)
-
+ 
             if len(referal)>0:
                 try:
                     user = Accounts.objects.get(referal_code = referal)
@@ -319,14 +320,14 @@ def verify_view(request):
         user = Accounts.objects.get(id = id)
         number = user.phone_number
         codes = request.POST.get('username')
-        account_sid = 'AC19ac143574cb2d7ec98fc7f98c0dd92c'
-        auth_token = '7a2341a34d1a22a38d66e6f8418de7b7'
+        account_sid = TWILLIO_ACCOUNT_SID
+        auth_token = TWILLIO_AUTH_TOKEN
         client = Client(account_sid, auth_token)
 
         verification_check = client.verify \
-                            .services('VA7a7b213770440143ef193203f8bec694') \
+                            .services(TWILLIO_SERVICE_ID) \
                             .verification_checks \
-                            .create(to=f"+91{number}", code=codes)
+                            .create(to=f"+91{number}", code=codes) 
 
         print('login')
         if verification_check.status == 'approved':
@@ -338,9 +339,15 @@ def verify_view(request):
             messages.error(request,'wrong code')
             return redirect(verify_view)
     return render(request,'otp_signup.html')
+
+
+
+def buy_now_redirect(request):
+    messages.error(request,'login first to buy products')
+    return redirect(signin)
      
 
-
+@login_required(login_url=buy_now_redirect)
 @cache_control(no_cache = True, must_revalidate = True, no_store = True)
 def check_out(request,id = 0):
     
@@ -409,8 +416,9 @@ def check_out(request,id = 0):
         cart_product = request.session.get('cart_product')
         product = CartProduct.objects.get(id=cart_product)
         print('hereornot')
-        return render(request,'checkout.html',{'profile': profile, 'cartproduct': product, 'offer':product.total_amount })
-    except:
+        return render(request,'checkout.html',{'profile': profile, 'cartproduct': product, 'offer':product.product.offer })  
+    except Exception as e:
+        print(e)
         total_offer = 0
         for pros in cartproducts:
             total_offer = total_offer + pros.product.offer*pros.quantity
@@ -423,7 +431,7 @@ def check_out(request,id = 0):
 def guest_show(request,cart_id,total_offer):
     single_cart = Cart.objects.get(id=cart_id)
     full_cart = CartProduct.objects.filter(cart = single_cart)
-    return render(request,'shopping-cart.html',{'products':full_cart,'single':single_cart,'offer':total_offer})
+    return render(request,'shop-cart.html',{'products':full_cart,'single':single_cart,'offer':total_offer})
     pass
 
 def cart(request, us):
@@ -442,7 +450,7 @@ def cart(request, us):
             request.session['cart_id'] = cart_id
         single_cart = Cart.objects.get(id=cart_id)
         print(pros.price)
-        pro = CartProduct.objects.create(product=pros,quantity=1, total_amount = pros.price,cart = single_cart).order_by('id')
+        pro = CartProduct.objects.create(product=pros,quantity=1, total_amount = pros.price,cart = single_cart)
         
         full_cart = CartProduct.objects.filter(cart = single_cart)
         
@@ -534,7 +542,12 @@ def checkout(request,check, id):
     cart_id = request.session.get('cart_product')
     if cart_id:
         cart_products = CartProduct.objects.get(id = cart_id)
+        
         order = Order.objects.create(user = user_details, delivery_address = profile, status = 'ACCEPTED', grand_total = cart_products.total_amount )
+        orderprodcts = ProductOrders.objects.create(product = cart_products.product, quantity = cart_products.quantity, total_amount = cart_products.total_amount, main_order = order) 
+        myproduct = Products.objects.get(id = orderprodcts.product.id)
+        myproduct.stock = myproduct.stock - 1
+        myproduct.save()
         cart_products.delete()
         id= order.id
         cash = request.session.get('cash')
@@ -557,6 +570,7 @@ def checkout(request,check, id):
                 
         order.grand_total = order.grand_total - total_offer
         order.save()
+        
         cart_product.delete()
         cash = request.session.get('cash')
         if cash:
@@ -759,6 +773,9 @@ def invoice_pdf(request,id):
     return response
 
 
+
+
+@login_required(login_url=buy_now_redirect) 
 def buy_now(request,id):
     product = Products.objects.get(id=id)
     if product.stock <= 0:
@@ -958,19 +975,19 @@ def login_otp(request):
             return redirect(login_otp)
         request.session['id'] = user.id
         print(number) 
-        account_sid = 'AC19ac143574cb2d7ec98fc7f98c0dd92c'
-        auth_token = '7a2341a34d1a22a38d66e6f8418de7b7'
+        account_sid = TWILLIO_ACCOUNT_SID
+        auth_token = TWILLIO_AUTH_TOKEN
         client = Client(account_sid, auth_token)
 
         verification = client.verify \
-                     .services('VA7a7b213770440143ef193203f8bec694') \
+                     .services(TWILLIO_SERVICE_ID) \
                      .verifications \
                      .create(to= f"+91{number}", channel='sms')
 
         print(verification.status)
         return redirect(otp_veify)
     return render(request, 'otp_login.html')    
-
+ 
 
 def otp_veify(request):
     id = request.session.get('id')
@@ -982,12 +999,12 @@ def otp_veify(request):
     print(number)  
     if request.method == 'POST':
         codes = request.POST.get('username')
-        account_sid = 'AC19ac143574cb2d7ec98fc7f98c0dd92c'
-        auth_token = '7a2341a34d1a22a38d66e6f8418de7b7'
+        account_sid = TWILLIO_ACCOUNT_SID
+        auth_token = TWILLIO_AUTH_TOKEN
         client = Client(account_sid, auth_token)
 
         verification_check = client.verify \
-                            .services('VA7a7b213770440143ef193203f8bec694') \
+                            .services(TWILLIO_SERVICE_ID) \
                             .verification_checks \
                             .create(to=f"+91{number}", code=codes)
 
@@ -996,3 +1013,31 @@ def otp_veify(request):
             login(request,user)
             return redirect(first)
     return render(request, 'verifi.html') 
+
+
+
+
+def guest_check(request):
+    messages.error(request,'login first to buy products')
+    return redirect(signin)
+ 
+
+def best_deals(request):
+    product = Products.objects.exclude(offer = 0)
+    main_category = MainCategory.objects.all()
+    category = Category.objects.all()
+    return render(request,'shop_filter.html', {'products':product,'main_category':main_category, 'category':category})
+
+def pay_wallet(request,check):
+    user  = request.user
+    cart = Cart.objects.get(user = user)
+    wallet = Wallet.objects.get(user = user)
+    if wallet.amount >= cart.grand_total:
+        wallet.amount = wallet.amount - cart.grand_total
+        wallet.save()
+        return redirect(checkout,check,user.id)
+
+    else:
+        messages.error(request,'not enough amount in wallet')
+        return redirect(purchase,check,user.id)
+
