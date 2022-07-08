@@ -93,10 +93,10 @@ AUTH_USER_MODEL = 'admins.Accounts'
 DATABASES={
    'default':{
       'ENGINE':'django.db.backends.postgresql_psycopg2',
-      'NAME':'fashio_p',
+      'NAME':'fashio_now',
       'USER':'pranav',
       'PASSWORD':'pranavpranab#12345',
-      'HOST':'database-1.c4ry1lx32rnb.us-west-2.rds.amazonaws.com',
+      'HOST':'database-2.c4ry1lx32rnb.us-west-2.rds.amazonaws.com',
       'PORT':'5432',
    }
 }
