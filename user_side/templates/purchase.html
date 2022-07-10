@@ -179,9 +179,11 @@
         }
         return cookieValue;
     }
-    
+    {% if cart %}
     var amount = "{{cart.grand_total|sub:offer}}"
-    
+    {% else %}
+    var amount = "{{carts.total_amount|sub:offer}}"
+    {% endif %}
     var csrftoken = getCookie('csrftoken');
         // Render the PayPal button into #paypal-button-container
     paypal.Buttons({
@@ -236,6 +238,7 @@
 
 
     }).render('#paypal-button-container');
+    
 </script>
 
 <script>

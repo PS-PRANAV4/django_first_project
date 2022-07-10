@@ -714,7 +714,7 @@ def invoice(request,id):
     for product in productorder:
         total = total + product.total_amount
         offer = offer + product.product.offer 
-    print('jjjjjjjjjjjjjjjjjjjjjjj')
+    
     return render(request,'invoice.html',{'order':order, 'products': productorder,'total':total,'offer':offer})
 
 
@@ -1030,14 +1030,33 @@ def best_deals(request):
 
 def pay_wallet(request,check):
     user  = request.user
-    cart = Cart.objects.get(user = user)
     wallet = Wallet.objects.get(user = user)
-    if wallet.amount >= cart.grand_total:
-        wallet.amount = wallet.amount - cart.grand_total
-        wallet.save()
-        return redirect(checkout,check,user.id)
+    try:
+        cart_product = request.session.get('cart_product')
+        product_cart = CartProduct.objects.get(id = cart_product)
+        print(product_cart.total_amount)
+        print(wallet.amount)
+        if product_cart.total_amount <= wallet.amount:
+            wallet.amount = wallet.amount - product_cart.total_amount
+            wallet.save()
+            return redirect(checkout,check,user.id)
+        else:
+            messages.error(request,'not enough amount in wallet')
+            return redirect(purchase,check,user.id)
 
-    else:
-        messages.error(request,'not enough amount in wallet')
-        return redirect(purchase,check,user.id)
+    except Exception as e:
+        print(e)
+        print(cart_product)
+        
+        cart = Cart.objects.get(user = user)
+        
+        if wallet.amount >= cart.grand_total:
+            wallet.amount = wallet.amount - cart.grand_total
+            wallet.save()
+            return redirect(checkout,check,user.id)
 
+        else:
+            messages.error(request,'not enough amount in wallet')
+            return redirect(purchase,check,user.id) 
+
+   
